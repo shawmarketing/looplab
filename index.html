@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loop Lab — Handmade Loom Bands</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='14' cy='20' r='11' stroke='%23ff2e9a' stroke-width='5' fill='none'/><circle cx='26' cy='20' r='11' stroke='%2300e5ff' stroke-width='5' fill='none'/></svg>" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Comic+Neue:wght@400;700&display=swap');
+* { box-sizing: border-box; font-family: 'Comic Neue', cursive; }
+body { margin: 0; }
+.navbtn:hover { transform: translateY(-2px); }
+.cta:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.05); }
+.cta:active { transform: scale(0.97); }
+.swatch:hover { transform: scale(1.12) !important; }
+.card { transition: transform .2s, box-shadow .2s; }
+.card.pop:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.14); }
+.pop { animation: pop .45s cubic-bezier(.2,1.3,.5,1) both; }
+@keyframes pop { from { opacity:0; transform: scale(.9) translateY(14px);} to {opacity:1; transform:none;} }
+.wiggle { display:inline-block; animation: wig 2.5s ease-in-out infinite; }
+@keyframes wig { 0%,100%{transform:rotate(-3deg);} 50%{transform:rotate(3deg);} }
+.blob { position:absolute; border-radius:50%; filter: blur(45px); opacity:.45; animation: float 12s ease-in-out infinite; }
+.b1{ width:260px;height:260px; background:#ff2e9a; top:-60px; left:-60px;}
+.b2{ width:220px;height:220px; background:#39ff14; top:30%; right:-70px; animation-delay:-3s;}
+.b3{ width:200px;height:200px; background:#fff200; bottom:-60px; left:10%; animation-delay:-6s;}
+.b4{ width:180px;height:180px; background:#b026ff; top:50%; left:40%; animation-delay:-9s;}
+@keyframes float { 0%,100%{transform:translateY(0) translateX(0);} 50%{transform:translateY(-30px) translateX(20px);} }
+input:focus, textarea:focus, select:focus { outline: 3px solid #ff2e9a44; border-color:#ff2e9a !important; }
+.spin { animation: spin 1s linear infinite; display:inline-block; }
+@keyframes spin { to { transform: rotate(360deg);} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="module">
+/* ============================================================
+   LOOP LAB — Firebase-connected version
+   Your config is already filled in below.
+   ============================================================ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, onSnapshot,
+  doc, updateDoc, deleteDoc, setDoc, query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDYSuAejRfCj9l4MwOIZ2_jcWXqwYj7CSw",
+  authDomain: "loop-lab-add15.firebaseapp.com",
+  projectId: "loop-lab-add15",
+  storageBucket: "loop-lab-add15.firebasestorage.app",
+  messagingSenderId: "635463948345",
+  appId: "1:635463948345:web:e660399c24eb15e873d5e8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// expose the bits the React code below needs
+window.fb = {
+  db, auth, storage,
+  collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, setDoc,
+  query, orderBy, serverTimestamp,
+  signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  ref, uploadBytes, getDownloadURL,
+};
+window.dispatchEvent(new Event("fb-ready"));
+</script>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+const ADMIN_DEFAULTS = {
+  products: [
+    { sku: "Bracelet", price: 50, desc: "A stretchy rainbow bracelet made just for you.", image: "" },
+    { sku: "Necklace", price: 120, desc: "A long loopy necklace in your favourite colours.", image: "" },
+    { sku: "Rings", price: 30, desc: "Tiny loom band rings — get a set!", image: "" },
+  ],
+  colors: [
+    { name: "Neon Pink", hex: "#ff2e9a" }, { name: "Lime", hex: "#39ff14" },
+    { name: "Sunshine", hex: "#fff200" }, { name: "Aqua", hex: "#00e5ff" },
+    { name: "Tangerine", hex: "#ff7a00" }, { name: "Grape", hex: "#b026ff" },
+    { name: "Bubblegum", hex: "#ff6ec7" }, { name: "Mint", hex: "#7dffd4" },
+  ],
+};
+
+const NEON = { pink: "#ff2e9a", green: "#39ff14", yellow: "#fff200", blue: "#00e5ff", orange: "#ff7a00", purple: "#b026ff" };
+
+/* ---------- Logo ---------- */
+function Logo({ size = 44 }) {
+  const fs = size * 0.58;
+  const Loop = ({ stroke }) => (
+    <svg width={fs * 0.92} height={fs * 0.92} viewBox="0 0 40 40" fill="none"
+      style={{ display: "inline-block", verticalAlign: "middle", margin: "0 1px", filter: `drop-shadow(0 0 4px ${stroke})` }}>
+      <circle cx="20" cy="20" r="13" stroke={stroke} strokeWidth="5.5" fill="none" />
+      <circle cx="20" cy="20" r="6" stroke={stroke} strokeWidth="3" fill="none" opacity="0.55" />
+    </svg>
+  );
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <span style={logoText(fs)}>L</span><Loop stroke={NEON.pink} /><Loop stroke={NEON.blue} /><span style={logoText(fs)}>P</span>
+      <span style={{ width: 8 }} />
+      <span style={{ ...logoText(fs), background: "linear-gradient(90deg,#39ff14,#00e5ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Lab</span>
+    </div>
+  );
+}
+const logoText = (fs) => ({ fontFamily: "'Pacifico', cursive", fontWeight: 400, fontSize: fs * 1.05, lineHeight: 1, background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#fff200)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" });
+
+function App() {
+  const [view, setView] = useState("shop");
+  const [products, setProducts] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [ready, setReady] = useState(false);
+  const fb = window.fb;
+
+  // Live-subscribe to products & colours (visible to everyone)
+  useEffect(() => {
+    if (!fb) return;
+    const unsubP = fb.onSnapshot(fb.collection(fb.db, "products"), (snap) => {
+      setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setReady(true);
+    }, () => setReady(true));
+    const unsubC = fb.onSnapshot(fb.collection(fb.db, "colors"), (snap) => {
+      setColors(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+    return () => { unsubP(); unsubC(); };
+  }, []);
+
+  return (
+    <div style={styles.root}>
+      <div style={styles.blobs} aria-hidden>
+        <span className="blob b1" /><span className="blob b2" /><span className="blob b3" /><span className="blob b4" />
+      </div>
+      <header style={styles.header}>
+        <Logo />
+        <nav style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setView("shop")} className="navbtn" style={{ ...styles.navBtn, ...(view === "shop" ? styles.navActive : {}) }}>🛍️ Shop</button>
+          <button onClick={() => setView("admin")} className="navbtn" style={{ ...styles.navBtn, ...(view === "admin" ? styles.navActive : {}) }}>🔒 Owner</button>
+        </nav>
+      </header>
+
+      {!ready
+        ? <div style={{ textAlign: "center", padding: 80, fontFamily: "Pacifico", fontSize: 22, color: "#234" }}><span className="spin">🌀</span> Loading the sparkles…</div>
+        : view === "shop"
+          ? <Shop products={products} colors={colors} />
+          : <Admin products={products} colors={colors} />}
+
+      <footer style={styles.footer}>
+        <div style={styles.footTitle}>📞 Get in touch</div>
+        <div style={styles.footRow}>
+          <a href="tel:+919137412453" style={styles.footLink}>📱 +91 91374 12453</a>
+          <a href="mailto:looplab2016@gmail.com" style={styles.footLink}>📧 looplab2016@gmail.com</a>
+        </div>
+        <div style={styles.footTag}>Made with 💖 and rubber bands · Loop Lab</div>
+        <div style={styles.footPrivacy}>
+          We only use your name, contact details and address to process and deliver your order.
+          We never sell or share your information. Questions? Email us above.
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/* ===================== STOREFRONT ===================== */
+function Shop({ products, colors }) {
+  const fb = window.fb;
+  const [selected, setSelected] = useState(null);
+  const [picked, setPicked] = useState([]);
+  const [qty, setQty] = useState(1);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [note, setNote] = useState("");
+  const [agree, setAgree] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(null);
+
+  const toggleColor = (c) => setPicked((p) => p.find((x) => x.name === c.name) ? p.filter((x) => x.name !== c.name) : [...p, c]);
+  const startOrder = (p) => { setSelected(p); setPicked([]); setQty(1); setName(""); setPhone(""); setEmail(""); setAddress(""); setNote(""); setAgree(false); setDone(null); };
+
+  const placeOrder = async () => {
+    if (!name.trim()) return alert("Please add your name 🙂");
+    if (!phone.trim()) return alert("Please add your phone number 📱");
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return alert("Please add a valid email id 📧");
+    if (!address.trim()) return alert("Please add your delivery address 🏠");
+    if (picked.length === 0) return alert("Please pick at least one colour 🌈");
+    if (!agree) return alert("Please accept the terms & conditions to continue 📜");
+    const order = {
+      product: selected.sku, price: selected.price, qty, total: selected.price * qty,
+      colors: picked.map((c) => c.name), customer: name.trim(), phone: phone.trim(),
+      email: email.trim(), address: address.trim(), note: note.trim(),
+      status: "New", time: new Date().toISOString(), createdAt: fb.serverTimestamp(),
+    };
+    setBusy(true);
+    try {
+      await fb.addDoc(fb.collection(fb.db, "orders"), order);
+      setDone({ ...order });
+    } catch (e) {
+      alert("Sorry, the order couldn't be sent. Please check your internet and try again.");
+    }
+    setBusy(false);
+  };
+
+  return (
+    <main style={styles.main}>
+      <section style={styles.hero}>
+        <h1 style={styles.heroTitle}>Handmade <span className="wiggle" style={{ color: NEON.pink }}>loom band</span> treasures</h1>
+        <p style={styles.heroSub}>Pick a style, choose your rainbow, and I’ll make it just for you! 🌈</p>
+      </section>
+
+      {!selected && (
+        <div style={styles.grid}>
+          {products.length === 0 && <div style={styles.empty}>No products yet — check back soon! 🌈</div>}
+          {products.map((p, i) => (
+            <div key={p.id} className="card pop" style={{ ...styles.card, animationDelay: `${i * 0.1}s` }}>
+              {p.image
+                ? <img src={p.image} alt={p.sku} style={styles.cardImg} />
+                : <div style={{ ...styles.cardImg, ...styles.cardImgBlank, background: bandGradient(i) }}><span style={{ fontSize: 13, color: "#fff", fontFamily: "Pacifico", textShadow: "0 1px 4px rgba(0,0,0,.25)" }}>📷 photo coming soon</span></div>}
+              <h3 style={styles.cardTitle}>{p.sku}</h3>
+              <p style={styles.cardDesc}>{p.desc}</p>
+              <div style={styles.priceRow}>
+                <span style={styles.price}>₹{Number(p.price).toFixed(0)}</span>
+                <button className="cta" style={styles.cta} onClick={() => startOrder(p)}>Make mine →</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {selected && !done && (
+        <div className="pop" style={styles.builder}>
+          <button style={styles.back} onClick={() => setSelected(null)}>← back</button>
+          {selected.image && <img src={selected.image} alt={selected.sku} style={styles.builderImg} />}
+          <h2 style={styles.builderTitle}>Customise your <span style={{ color: NEON.pink }}>{selected.sku}</span></h2>
+          <p style={{ color: "#555", marginTop: -6 }}>{selected.desc}</p>
+
+          <h4 style={styles.label}>Pick your colours 🌈</h4>
+          <div style={styles.swatchWrap}>
+            {colors.map((c) => {
+              const on = picked.find((x) => x.name === c.name);
+              return <button key={c.id || c.name} onClick={() => toggleColor(c)} className="swatch" title={c.name}
+                style={{ ...styles.swatch, background: c.hex, outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: `0 0 14px ${c.hex}` }}>{on ? "✓" : ""}</button>;
+            })}
+          </div>
+          <div style={{ fontSize: 13, color: "#777", marginTop: 6 }}>{picked.length ? "Chosen: " + picked.map((c) => c.name).join(", ") : "Tap the colours you want"}</div>
+
+          <div style={styles.formRow}>
+            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Your name</h4><input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mia Sharma" /></div>
+            <div style={{ width: 120 }}><h4 style={styles.label}>How many?</h4><input type="number" min="1" style={styles.input} value={qty} onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))} /></div>
+          </div>
+          <div style={styles.formRow}>
+            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Phone number</h4><input style={styles.input} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 98765 43210" /></div>
+            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Email id</h4><input style={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. mia@email.com" /></div>
+          </div>
+          <h4 style={styles.label}>Delivery address</h4>
+          <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Flat / house, street, area, city, pincode" />
+          <h4 style={styles.label}>Any special wishes? (optional)</h4>
+          <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. make it extra sparkly!" />
+
+          <div style={styles.terms}>
+            <h4 style={{ ...styles.label, margin: "0 0 8px" }}>📜 Terms &amp; Conditions</h4>
+            <ul style={styles.termsList}>
+              <li>No Cash on Delivery (COD). All orders are <strong>prepaid</strong>.</li>
+              <li>Shipping charges are <strong>extra</strong> and added to your order.</li>
+              <li>Once your order is placed, someone will connect with you for the payment.</li>
+            </ul>
+            <label style={styles.agreeRow}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ width: 18, height: 18 }} /><span>I have read and accept the terms &amp; conditions.</span></label>
+          </div>
+
+          <div style={styles.orderBar}>
+            <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>Total: <span style={{ color: NEON.pink }}>₹{(selected.price * qty).toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span></div>
+            <button className="cta" disabled={busy} style={{ ...styles.cta, fontSize: 18, padding: "14px 28px", opacity: busy ? 0.6 : 1 }} onClick={placeOrder}>{busy ? <span><span className="spin">🌀</span> Sending…</span> : "Place order 🎉"}</button>
+          </div>
+        </div>
+      )}
+
+      {done && (
+        <div className="pop" style={styles.success}>
+          <div style={{ fontSize: 60 }}>🎉</div>
+          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Yay, order placed!</h2>
+          <p style={{ color: "#555" }}>Thanks {done.customer}! Your {done.qty}× {done.product} in {done.colors.join(", ")} is on the list.</p>
+          <p style={{ color: "#456", background: "#eafaff", borderRadius: 14, padding: "12px 16px", fontSize: 15 }}>💳 Someone will connect with you shortly on <strong>{done.phone}</strong> to arrange the prepaid payment (plus shipping). Thank you!</p>
+          <button className="cta" style={styles.cta} onClick={() => { setSelected(null); setDone(null); }}>Shop more →</button>
+        </div>
+      )}
+    </main>
+  );
+}
+
+/* ===================== ADMIN ===================== */
+function Admin({ products, colors }) {
+  const fb = window.fb;
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [tab, setTab] = useState("orders");
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const unsub = fb.onAuthStateChanged(fb.auth, (u) => { setUser(u); setChecking(false); });
+    return () => unsub();
+  }, []);
+
+  // when logged in, live-subscribe to orders
+  useEffect(() => {
+    if (!user) return;
+    const q = fb.query(fb.collection(fb.db, "orders"), fb.orderBy("time", "desc"));
+    const unsub = fb.onSnapshot(q, (snap) => setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+    return () => unsub();
+  }, [user]);
+
+  const login = async () => {
+    try { await fb.signInWithEmailAndPassword(fb.auth, email.trim(), pw); }
+    catch (e) { alert("Login failed. Check the email and password."); }
+  };
+
+  if (checking) return <main style={styles.main}><div style={{ textAlign: "center", padding: 60, fontFamily: "Pacifico" }}><span className="spin">🌀</span></div></main>;
+
+  if (!user) {
+    return (
+      <main style={styles.main}>
+        <div className="pop" style={styles.login}>
+          <div style={{ fontSize: 44 }}>🔐</div>
+          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Owner login</h2>
+          <p style={{ color: "#777", fontSize: 14 }}>Only the shop owner can come in here.</p>
+          <input style={styles.input} type="email" value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+          <input style={{ ...styles.input, marginTop: 10 }} type="password" value={pw} placeholder="Password" onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => e.key === "Enter" && login()} />
+          <button className="cta" style={{ ...styles.cta, marginTop: 12 }} onClick={login}>Enter shop</button>
+        </div>
+      </main>
+    );
+  }
+
+  const newCount = orders.filter((o) => o.status === "New").length;
+  return (
+    <main style={styles.main}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+        <div style={styles.adminTabs}>
+          {[["orders", `📬 Orders${newCount ? ` (${newCount})` : ""}`], ["products", "🏷️ Products"], ["colors", "🎨 Colours"]].map(([k, label]) => (
+            <button key={k} className="navbtn" onClick={() => setTab(k)} style={{ ...styles.tab, ...(tab === k ? styles.tabActive : {}) }}>{label}</button>
+          ))}
+        </div>
+        <button className="navbtn" style={{ ...styles.tab, background: "#ffe5ee", color: "#d6005c" }} onClick={() => fb.signOut(fb.auth)}>Log out</button>
+      </div>
+      {tab === "orders" && <OrdersPanel orders={orders} />}
+      {tab === "products" && <ProductsPanel products={products} />}
+      {tab === "colors" && <ColorsPanel colors={colors} />}
+    </main>
+  );
+}
+
+function OrdersPanel({ orders }) {
+  const fb = window.fb;
+  const setStatus = (id, status) => fb.updateDoc(fb.doc(fb.db, "orders", id), { status });
+  const remove = (id) => { if (confirm("Delete this order?")) fb.deleteDoc(fb.doc(fb.db, "orders", id)); };
+  const revenue = orders.filter((o) => o.status !== "New").reduce((s, o) => s + (o.total || 0), 0);
+  return (
+    <div>
+      <div style={styles.statRow}>
+        <Stat label="Total orders" value={orders.length} color={NEON.pink} />
+        <Stat label="New" value={orders.filter((o) => o.status === "New").length} color={NEON.blue} />
+        <Stat label="Earned" value={"₹" + revenue.toFixed(0)} color={NEON.green} />
+      </div>
+      {orders.length === 0 && <div style={styles.empty}>No orders yet — share your shop! 🌈</div>}
+      {orders.map((o) => (
+        <div key={o.id} className="card" style={styles.orderCard}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+              <strong style={{ fontFamily: "Pacifico", fontSize: 18 }}>{o.qty}× {o.product}</strong>
+              <span style={{ ...styles.badge, background: statusColor(o.status) }}>{o.status}</span>
+            </div>
+            <div style={{ color: "#555", margin: "4px 0" }}>For <strong>{o.customer}</strong> · {(o.colors || []).join(", ")}</div>
+            <div style={{ fontSize: 13, color: "#666" }}>📱 {o.phone || "—"} · 📧 {o.email || "—"}</div>
+            {o.address && <div style={{ fontSize: 13, color: "#666" }}>🏠 {o.address}</div>}
+            {o.note && <div style={{ fontSize: 13, color: "#888", fontStyle: "italic" }}>“{o.note}”</div>}
+            <div style={{ fontSize: 12, color: "#aaa", marginTop: 4 }}>{new Date(o.time).toLocaleString()} · ₹{(o.total || 0).toFixed(0)} + shipping</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <select value={o.status} onChange={(e) => setStatus(o.id, e.target.value)} style={styles.select}><option>New</option><option>Making</option><option>Done</option><option>Delivered</option></select>
+            <button style={styles.del} onClick={() => remove(o.id)}>Delete</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProductsPanel({ products }) {
+  const fb = window.fb;
+  const [sku, setSku] = useState(""); const [price, setPrice] = useState(""); const [desc, setDesc] = useState("");
+  const [file, setFile] = useState(null); const [preview, setPreview] = useState(""); const [busy, setBusy] = useState(false);
+
+  const pickFile = (f, cb) => {
+    if (!f) return;
+    if (f.size > 6 * 1024 * 1024) return alert("Please pick a photo under 6MB 🙂");
+    const r = new FileReader(); r.onload = (e) => cb(e.target.result); r.readAsDataURL(f);
+  };
+  const uploadPhoto = async (f) => {
+    const path = "products/" + Date.now() + "_" + f.name.replace(/[^a-zA-Z0-9.]/g, "");
+    const sref = fb.ref(fb.storage, path);
+    await fb.uploadBytes(sref, f);
+    return await fb.getDownloadURL(sref);
+  };
+  const add = async () => {
+    if (!sku.trim() || !price) return alert("Add a name and price 🙂");
+    setBusy(true);
+    try {
+      let image = "";
+      if (file) image = await uploadPhoto(file);
+      await fb.addDoc(fb.collection(fb.db, "products"), { sku: sku.trim(), price: parseFloat(price), desc: desc.trim(), image });
+      setSku(""); setPrice(""); setDesc(""); setFile(null); setPreview("");
+    } catch (e) { alert("Couldn't add product — check connection."); }
+    setBusy(false);
+  };
+  const edit = (id, field, val) => fb.updateDoc(fb.doc(fb.db, "products", id), { [field]: field === "price" ? parseFloat(val) || 0 : val });
+  const remove = (id) => confirm("Remove this product?") && fb.deleteDoc(fb.doc(fb.db, "products", id));
+  const changePhoto = async (id, f) => {
+    if (!f) return; if (f.size > 6 * 1024 * 1024) return alert("Photo under 6MB please 🙂");
+    try { const url = await uploadPhoto(f); edit(id, "image", url); } catch (e) { alert("Upload failed."); }
+  };
+
+  return (
+    <div>
+      <div className="card" style={styles.addBox}>
+        <h3 style={styles.panelTitle}>➕ Add a new product</h3>
+        <div style={styles.formRow}>
+          <input style={styles.input} placeholder="Name (e.g. Bracelet)" value={sku} onChange={(e) => setSku(e.target.value)} />
+          <input style={{ ...styles.input, width: 110 }} placeholder="Price ₹" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+        </div>
+        <input style={styles.input} placeholder="Short description" value={desc} onChange={(e) => setDesc(e.target.value)} />
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 10 }}>
+          {preview ? <img src={preview} alt="preview" style={styles.thumb} /> : <div style={{ ...styles.thumb, ...styles.thumbBlank }}>📷</div>}
+          <label className="cta" style={{ ...styles.cta, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>Choose photo<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; setFile(f); pickFile(f, setPreview); }} /></label>
+          {preview && <button style={styles.del} onClick={() => { setFile(null); setPreview(""); }}>clear</button>}
+        </div>
+        <button className="cta" disabled={busy} style={{ ...styles.cta, marginTop: 12, opacity: busy ? 0.6 : 1 }} onClick={add}>{busy ? "Saving…" : "Add product"}</button>
+      </div>
+
+      {products.map((p) => (
+        <div key={p.id} className="card" style={styles.orderCard}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+            {p.image ? <img src={p.image} alt={p.sku} style={styles.thumb} /> : <div style={{ ...styles.thumb, ...styles.thumbBlank }}>📷</div>}
+            <label className="cta" style={{ ...styles.cta, padding: "6px 12px", fontSize: 12, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>{p.image ? "Change" : "Upload"}<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => changePhoto(p.id, e.target.files[0])} /></label>
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+            <input style={styles.inlineInput} defaultValue={p.sku} onBlur={(e) => edit(p.id, "sku", e.target.value)} />
+            <input style={styles.inlineInput} defaultValue={p.desc} onBlur={(e) => edit(p.id, "desc", e.target.value)} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
+            <div>₹<input style={{ ...styles.inlineInput, width: 70 }} type="number" defaultValue={p.price} onBlur={(e) => edit(p.id, "price", e.target.value)} /></div>
+            <button style={styles.del} onClick={() => remove(p.id)}>Delete</button>
+          </div>
+        </div>
+      ))}
+      <p style={{ fontSize: 12, color: "#778", textAlign: "center" }}>Tip: edits to name / description / price save when you click away from the box.</p>
+    </div>
+  );
+}
+
+function ColorsPanel({ colors }) {
+  const fb = window.fb;
+  const [name, setName] = useState(""); const [hex, setHex] = useState("#ff2e9a");
+  const add = () => { if (!name.trim()) return alert("Give the colour a name 🙂"); fb.addDoc(fb.collection(fb.db, "colors"), { name: name.trim(), hex }); setName(""); setHex("#ff2e9a"); };
+  const remove = (id) => fb.deleteDoc(fb.doc(fb.db, "colors", id));
+  return (
+    <div>
+      <div className="card" style={styles.addBox}>
+        <h3 style={styles.panelTitle}>🎨 Add a new colour</h3>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} style={styles.colorPick} />
+          <input style={styles.input} placeholder="Colour name (e.g. Neon Pink)" value={name} onChange={(e) => setName(e.target.value)} />
+          <button className="cta" style={styles.cta} onClick={add}>Add</button>
+        </div>
+      </div>
+      <div style={styles.swatchWrap}>
+        {colors.map((c) => (
+          <div key={c.id} style={{ textAlign: "center" }}>
+            <button className="swatch" style={{ ...styles.swatch, background: c.hex, boxShadow: `0 0 14px ${c.hex}`, cursor: "default" }} />
+            <div style={{ fontSize: 12, marginTop: 4 }}>{c.name}</div>
+            <button style={{ ...styles.del, marginTop: 4, fontSize: 11 }} onClick={() => remove(c.id)}>remove</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, color }) {
+  return <div className="card" style={{ ...styles.stat, borderTop: `5px solid ${color}` }}><div style={{ fontFamily: "Pacifico", fontSize: 30, color }}>{value}</div><div style={{ fontSize: 13, color: "#777" }}>{label}</div></div>;
+}
+const bandGradient = (i) => ["linear-gradient(135deg,#ff2e9a,#fff200)", "linear-gradient(135deg,#00e5ff,#b026ff)", "linear-gradient(135deg,#39ff14,#ff7a00)"][i % 3];
+const statusColor = (s) => ({ New: NEON.blue, Making: NEON.orange, Done: NEON.green, Delivered: "#999" }[s] || "#999");
+
+const styles = {
+  root: { minHeight: "100vh", fontFamily: "'Comic Neue', cursive", background: "radial-gradient(circle at 50% 0%, #d6fbff, #b3f0ff 45%, #8fe6ff 100%)", position: "relative", overflow: "hidden", color: "#2b2b3a" },
+  blobs: { position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" },
+  header: { position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 28px", background: "rgba(20,16,48,.92)", backdropFilter: "blur(10px)", borderBottom: "3px solid #ff2e9a", boxShadow: "0 4px 20px rgba(0,0,0,.18)" },
+  navBtn: { border: "none", borderRadius: 999, padding: "10px 18px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, background: "#fff", color: "#555", boxShadow: "0 3px 10px rgba(0,0,0,.08)", transition: "transform .15s" },
+  navActive: { background: "linear-gradient(90deg,#ff2e9a,#b026ff)", color: "#fff" },
+  main: { position: "relative", zIndex: 2, maxWidth: 980, margin: "0 auto", padding: "28px 20px 60px" },
+  hero: { textAlign: "center", padding: "20px 0 30px" },
+  heroTitle: { fontFamily: "Pacifico", fontSize: 42, margin: 0, lineHeight: 1.2 },
+  heroSub: { fontSize: 18, color: "#456", marginTop: 10 },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 22 },
+  card: { background: "#fff", borderRadius: 24, padding: 22, boxShadow: "0 8px 26px rgba(0,0,0,.08)" },
+  cardImg: { width: "100%", height: 150, borderRadius: 18, objectFit: "cover", marginBottom: 14, display: "block" },
+  cardImgBlank: { display: "flex", alignItems: "center", justifyContent: "center" },
+  builderImg: { width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 18, margin: "10px 0" },
+  thumb: { width: 70, height: 70, borderRadius: 14, objectFit: "cover", border: "2px solid #eee" },
+  thumbBlank: { display: "flex", alignItems: "center", justifyContent: "center", background: "#f2f2f2", fontSize: 26 },
+  cardTitle: { fontFamily: "Pacifico", fontSize: 24, margin: "0 0 6px" },
+  cardDesc: { color: "#666", fontSize: 14, minHeight: 42 },
+  priceRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14 },
+  price: { fontFamily: "Pacifico", fontSize: 24, color: NEON.green, filter: "brightness(.8)" },
+  cta: { border: "none", borderRadius: 999, padding: "11px 20px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, color: "#fff", background: "linear-gradient(90deg,#ff2e9a,#ff7a00)", boxShadow: "0 6px 16px rgba(255,46,154,.35)", transition: "transform .15s, filter .15s" },
+  builder: { background: "#fff", borderRadius: 28, padding: 28, boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
+  back: { border: "none", background: "transparent", color: "#999", cursor: "pointer", fontSize: 15 },
+  builderTitle: { fontFamily: "Pacifico", fontSize: 30, margin: "6px 0" },
+  label: { fontFamily: "Pacifico", fontSize: 16, margin: "20px 0 8px" },
+  swatchWrap: { display: "flex", flexWrap: "wrap", gap: 14 },
+  swatch: { width: 52, height: 52, borderRadius: "50%", border: "none", cursor: "pointer", color: "#fff", fontSize: 20, fontWeight: 800, transition: "transform .15s" },
+  formRow: { display: "flex", gap: 14, flexWrap: "wrap" },
+  input: { width: "100%", padding: "12px 14px", borderRadius: 14, border: "2px solid #eee", fontSize: 15, fontFamily: "'Comic Neue', cursive", marginTop: 4 },
+  orderBar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 18, borderTop: "2px dashed #eee", flexWrap: "wrap", gap: 12 },
+  terms: { marginTop: 22, background: "#fff7fb", border: "2px dashed #ffb3d9", borderRadius: 16, padding: "14px 18px" },
+  termsList: { margin: "0 0 10px", paddingLeft: 18, color: "#555", fontSize: 14, lineHeight: 1.6 },
+  agreeRow: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#333", cursor: "pointer" },
+  success: { background: "#fff", borderRadius: 28, padding: 40, textAlign: "center", boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
+  login: { maxWidth: 360, margin: "40px auto", background: "#fff", borderRadius: 24, padding: 30, textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,.1)" },
+  adminTabs: { display: "flex", gap: 10, flexWrap: "wrap" },
+  tab: { border: "none", borderRadius: 999, padding: "10px 18px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, background: "#fff", color: "#555", boxShadow: "0 3px 10px rgba(0,0,0,.08)" },
+  tabActive: { background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" },
+  statRow: { display: "flex", gap: 14, marginBottom: 22, flexWrap: "wrap" },
+  stat: { flex: 1, minWidth: 130, padding: 18, textAlign: "center", borderRadius: 18 },
+  empty: { textAlign: "center", padding: 40, color: "#456", fontFamily: "Pacifico", fontSize: 18 },
+  orderCard: { display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 14, padding: 18, borderRadius: 18, background: "#fff", boxShadow: "0 8px 26px rgba(0,0,0,.08)" },
+  badge: { color: "#063", fontFamily: "Pacifico", fontSize: 12, padding: "3px 10px", borderRadius: 999 },
+  select: { padding: "8px 10px", borderRadius: 10, border: "2px solid #eee", fontFamily: "'Comic Neue', cursive", fontSize: 14 },
+  del: { border: "none", background: "#ffe5ee", color: "#d6005c", borderRadius: 10, padding: "7px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700 },
+  addBox: { padding: 20, borderRadius: 20, marginBottom: 22 },
+  panelTitle: { fontFamily: "Pacifico", fontSize: 20, marginTop: 0 },
+  inlineInput: { padding: "8px 10px", borderRadius: 10, border: "2px solid #eee", fontFamily: "'Comic Neue', cursive", fontSize: 14, width: "100%" },
+  colorPick: { width: 54, height: 44, border: "none", borderRadius: 12, cursor: "pointer", background: "none" },
+  footer: { position: "relative", zIndex: 2, textAlign: "center", padding: "28px 20px 36px", color: "#fff", fontFamily: "Pacifico", background: "rgba(20,16,48,.92)", marginTop: 30, borderTop: "3px solid #ff2e9a" },
+  footTitle: { fontSize: 22, marginBottom: 12, background: "linear-gradient(90deg,#ff2e9a,#fff200,#39ff14)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+  footRow: { display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap", marginBottom: 14 },
+  footLink: { color: "#fff", textDecoration: "none", fontFamily: "'Comic Neue', cursive", fontSize: 16, background: "rgba(255,255,255,.12)", padding: "8px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,.2)" },
+  footTag: { fontSize: 14, color: "#9fb3d9" },
+  footPrivacy: { fontSize: 12, color: "#7d90b5", fontFamily: "'Comic Neue', cursive", maxWidth: 520, margin: "10px auto 0", lineHeight: 1.5 },
+};
+
+function boot() {
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+}
+if (window.fb) boot(); else window.addEventListener("fb-ready", boot);
+</script>
+</body>
+</html>
