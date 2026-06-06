@@ -46,9 +46,6 @@ import {
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import {
-  getStorage, ref, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYSuAejRfCj9l4MwOIZ2_jcWXqwYj7CSw",
@@ -62,15 +59,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const storage = getStorage(app);
 
 // expose the bits the React code below needs
 window.fb = {
-  db, auth, storage,
+  db, auth,
   collection, addDoc, getDocs, onSnapshot, doc, updateDoc, deleteDoc, setDoc,
   query, orderBy, serverTimestamp,
   signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  ref, uploadBytes, getDownloadURL,
 };
 window.dispatchEvent(new Event("fb-ready"));
 </script>
@@ -252,7 +247,7 @@ function Shop({ products, colors }) {
             {colors.map((c) => {
               const on = picked.find((x) => x.name === c.name);
               return <button key={c.id || c.name} onClick={() => toggleColor(c)} className="swatch" title={c.name}
-                style={{ ...styles.swatch, background: c.hex, outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: `0 0 14px ${c.hex}` }}>{on ? "✓" : ""}</button>;
+                style={{ ...styles.swatch, background: swatchBg(c), outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: swatchGlow(c) }}>{on ? "✓" : ""}</button>;
             })}
           </div>
           <div style={{ fontSize: 13, color: "#777", marginTop: 6 }}>{picked.length ? "Chosen: " + picked.map((c) => c.name).join(", ") : "Tap the colours you want"}</div>
@@ -404,33 +399,46 @@ function ProductsPanel({ products }) {
   const [sku, setSku] = useState(""); const [price, setPrice] = useState(""); const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null); const [preview, setPreview] = useState(""); const [busy, setBusy] = useState(false);
 
-  const pickFile = (f, cb) => {
-    if (!f) return;
-    if (f.size > 6 * 1024 * 1024) return alert("Please pick a photo under 6MB 🙂");
-    const r = new FileReader(); r.onload = (e) => cb(e.target.result); r.readAsDataURL(f);
-  };
-  const uploadPhoto = async (f) => {
-    const path = "products/" + Date.now() + "_" + f.name.replace(/[^a-zA-Z0-9.]/g, "");
-    const sref = fb.ref(fb.storage, path);
-    await fb.uploadBytes(sref, f);
-    return await fb.getDownloadURL(sref);
-  };
+  // Option B: shrink the photo and store it inside the product document (no Firebase Storage needed).
+  // Firestore documents max out around 1MB, so we downscale to ~500px and compress.
+  const fileToSmallImage = (f) => new Promise((resolve, reject) => {
+    if (!f) return reject();
+    if (f.size > 10 * 1024 * 1024) { alert("Please pick a photo under 10MB 🙂"); return reject(); }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const im = new Image();
+      im.onload = () => {
+        const max = 500;
+        const scale = Math.min(1, max / Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width * scale);
+        c.height = Math.round(im.height * scale);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.7));
+      };
+      im.onerror = reject;
+      im.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(f);
+  });
+
   const add = async () => {
     if (!sku.trim() || !price) return alert("Add a name and price 🙂");
     setBusy(true);
     try {
       let image = "";
-      if (file) image = await uploadPhoto(file);
+      if (file) image = await fileToSmallImage(file);
       await fb.addDoc(fb.collection(fb.db, "products"), { sku: sku.trim(), price: parseFloat(price), desc: desc.trim(), image });
       setSku(""); setPrice(""); setDesc(""); setFile(null); setPreview("");
-    } catch (e) { alert("Couldn't add product — check connection."); }
+    } catch (e) { alert("Couldn't add product — check connection or try a smaller photo."); }
     setBusy(false);
   };
   const edit = (id, field, val) => fb.updateDoc(fb.doc(fb.db, "products", id), { [field]: field === "price" ? parseFloat(val) || 0 : val });
   const remove = (id) => confirm("Remove this product?") && fb.deleteDoc(fb.doc(fb.db, "products", id));
   const changePhoto = async (id, f) => {
-    if (!f) return; if (f.size > 6 * 1024 * 1024) return alert("Photo under 6MB please 🙂");
-    try { const url = await uploadPhoto(f); edit(id, "image", url); } catch (e) { alert("Upload failed."); }
+    if (!f) return;
+    try { const data = await fileToSmallImage(f); edit(id, "image", data); } catch (e) { alert("Couldn't save photo — try a smaller one."); }
   };
 
   return (
@@ -444,7 +452,7 @@ function ProductsPanel({ products }) {
         <input style={styles.input} placeholder="Short description" value={desc} onChange={(e) => setDesc(e.target.value)} />
         <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 10 }}>
           {preview ? <img src={preview} alt="preview" style={styles.thumb} /> : <div style={{ ...styles.thumb, ...styles.thumbBlank }}>📷</div>}
-          <label className="cta" style={{ ...styles.cta, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>Choose photo<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; setFile(f); pickFile(f, setPreview); }} /></label>
+          <label className="cta" style={{ ...styles.cta, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>Choose photo<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; setFile(f); if (f) { const r = new FileReader(); r.onload = (ev) => setPreview(ev.target.result); r.readAsDataURL(f); } }} /></label>
           {preview && <button style={styles.del} onClick={() => { setFile(null); setPreview(""); }}>clear</button>}
         </div>
         <button className="cta" disabled={busy} style={{ ...styles.cta, marginTop: 12, opacity: busy ? 0.6 : 1 }} onClick={add}>{busy ? "Saving…" : "Add product"}</button>
@@ -473,24 +481,99 @@ function ProductsPanel({ products }) {
 
 function ColorsPanel({ colors }) {
   const fb = window.fb;
-  const [name, setName] = useState(""); const [hex, setHex] = useState("#ff2e9a");
-  const add = () => { if (!name.trim()) return alert("Give the colour a name 🙂"); fb.addDoc(fb.collection(fb.db, "colors"), { name: name.trim(), hex }); setName(""); setHex("#ff2e9a"); };
+  const [mode, setMode] = useState("single"); // single | dual
+  const [name, setName] = useState("");
+  const [hex, setHex] = useState("#ff2e9a");
+  const [hex2, setHex2] = useState("#39ff14");
+  const [loading, setLoading] = useState(false);
+
+  // Starter colours matching the band box: singles + the 7 dual-tones.
+  const STARTER = [
+    // singles
+    { name: "Neon Green", hex: "#aaff00" },
+    { name: "Hot Pink", hex: "#ff2e9a" },
+    { name: "Teal", hex: "#00b3a4" },
+    { name: "Purple", hex: "#9b4dff" },
+    { name: "Lilac", hex: "#c9a3ff" },
+    { name: "Magenta", hex: "#ff1f8f" },
+    { name: "Coral Pink", hex: "#ff6f7d" },
+    { name: "Yellow", hex: "#ffe400" },
+    { name: "Red", hex: "#ff2d2d" },
+    { name: "Orange", hex: "#ff8a1e" },
+    { name: "White", hex: "#ffffff" },
+    { name: "Lime", hex: "#7dff3a" },
+    { name: "Royal Blue", hex: "#2f6bff" },
+    { name: "Sky Blue", hex: "#7ec8ff" },
+    { name: "Aqua", hex: "#3ad6c5" },
+    { name: "Sunshine", hex: "#fff200" },
+    // dual tones (as you listed)
+    { name: "Pink & Green", hex: "#ff2e9a", hex2: "#39ff14" },
+    { name: "Purple & Blue", hex: "#9b4dff", hex2: "#2f6bff" },
+    { name: "White & Red", hex: "#ffffff", hex2: "#ff2d2d" },
+    { name: "Green & Blue", hex: "#39ff14", hex2: "#00b3ff" },
+    { name: "Pink & Yellow", hex: "#ff2e9a", hex2: "#ffe400" },
+    { name: "Purple & White", hex: "#9b4dff", hex2: "#ffffff" },
+    { name: "Pink & White", hex: "#ff2e9a", hex2: "#ffffff" },
+  ];
+  const loadStarter = async () => {
+    if (!confirm("Add all the starter colours from the band box? You can edit or remove any afterwards.")) return;
+    setLoading(true);
+    try { for (const c of STARTER) await fb.addDoc(fb.collection(fb.db, "colors"), c); }
+    catch (e) { alert("Some colours couldn't be added — check connection."); }
+    setLoading(false);
+  };
+
+  const add = () => {
+    if (!name.trim()) return alert("Give the colour a name 🙂");
+    const data = mode === "dual" ? { name: name.trim(), hex, hex2 } : { name: name.trim(), hex };
+    fb.addDoc(fb.collection(fb.db, "colors"), data);
+    setName(""); setHex("#ff2e9a"); setHex2("#39ff14");
+  };
   const remove = (id) => fb.deleteDoc(fb.doc(fb.db, "colors", id));
+
+  const preview = { hex, hex2: mode === "dual" ? hex2 : undefined };
+
   return (
     <div>
+      {colors.length === 0 && (
+        <div className="card" style={{ ...styles.addBox, textAlign: "center", background: "#fff7fb" }}>
+          <p style={{ margin: "0 0 12px", color: "#555" }}>Your colour shelf is empty. Load all the colours from the band box in one tap 🌈</p>
+          <button className="cta" disabled={loading} style={{ ...styles.cta, opacity: loading ? 0.6 : 1 }} onClick={loadStarter}>{loading ? "Adding…" : "✨ Load starter colours"}</button>
+        </div>
+      )}
+
       <div className="card" style={styles.addBox}>
         <h3 style={styles.panelTitle}>🎨 Add a new colour</h3>
-        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} style={styles.colorPick} />
-          <input style={styles.input} placeholder="Colour name (e.g. Neon Pink)" value={name} onChange={(e) => setName(e.target.value)} />
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          <button className="navbtn" onClick={() => setMode("single")}
+            style={{ ...styles.tab, ...(mode === "single" ? styles.tabActive : {}) }}>● Single tone</button>
+          <button className="navbtn" onClick={() => setMode("dual")}
+            style={{ ...styles.tab, ...(mode === "dual" ? styles.tabActive : {}) }}>◑ Dual tone</button>
+        </div>
+
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div className="swatch" style={{ ...styles.swatch, background: swatchBg(preview), boxShadow: swatchGlow(preview), cursor: "default" }} />
+          <div>
+            <div style={{ fontSize: 12, color: "#777" }}>{mode === "dual" ? "First colour" : "Colour"}</div>
+            <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} style={styles.colorPick} />
+          </div>
+          {mode === "dual" && (
+            <div>
+              <div style={{ fontSize: 12, color: "#777" }}>Second colour</div>
+              <input type="color" value={hex2} onChange={(e) => setHex2(e.target.value)} style={styles.colorPick} />
+            </div>
+          )}
+          <input style={{ ...styles.input, flex: 1, minWidth: 160 }} placeholder={mode === "dual" ? "Name (e.g. Pink & Green)" : "Name (e.g. Neon Pink)"} value={name} onChange={(e) => setName(e.target.value)} />
           <button className="cta" style={styles.cta} onClick={add}>Add</button>
         </div>
       </div>
+
       <div style={styles.swatchWrap}>
         {colors.map((c) => (
           <div key={c.id} style={{ textAlign: "center" }}>
-            <button className="swatch" style={{ ...styles.swatch, background: c.hex, boxShadow: `0 0 14px ${c.hex}`, cursor: "default" }} />
-            <div style={{ fontSize: 12, marginTop: 4 }}>{c.name}</div>
+            <button className="swatch" style={{ ...styles.swatch, background: swatchBg(c), boxShadow: swatchGlow(c), cursor: "default" }} />
+            <div style={{ fontSize: 12, marginTop: 4 }}>{c.name}{c.hex2 ? " ◑" : ""}</div>
             <button style={{ ...styles.del, marginTop: 4, fontSize: 11 }} onClick={() => remove(c.id)}>remove</button>
           </div>
         ))}
@@ -504,6 +587,9 @@ function Stat({ label, value, color }) {
 }
 const bandGradient = (i) => ["linear-gradient(135deg,#ff2e9a,#fff200)", "linear-gradient(135deg,#00e5ff,#b026ff)", "linear-gradient(135deg,#39ff14,#ff7a00)"][i % 3];
 const statusColor = (s) => ({ New: NEON.blue, Making: NEON.orange, Done: NEON.green, Delivered: "#999" }[s] || "#999");
+// background for a colour swatch: solid for single, hard diagonal split for dual-tone
+const swatchBg = (c) => c.hex2 ? `linear-gradient(135deg, ${c.hex} 0 50%, ${c.hex2} 50% 100%)` : c.hex;
+const swatchGlow = (c) => c.hex2 ? `0 0 14px ${c.hex}99, 0 0 14px ${c.hex2}99` : `0 0 14px ${c.hex}`;
 
 const styles = {
   root: { minHeight: "100vh", fontFamily: "'Comic Neue', cursive", background: "radial-gradient(circle at 50% 0%, #d6fbff, #b3f0ff 45%, #8fe6ff 100%)", position: "relative", overflow: "hidden", color: "#2b2b3a" },
