@@ -139,8 +139,11 @@ function App() {
         <span className="blob b1" /><span className="blob b2" /><span className="blob b3" /><span className="blob b4" />
       </div>
       <header style={styles.header}>
-        <Logo />
+        <div onClick={() => setView("shop")} style={{ cursor: "pointer" }} title="Back to home">
+          <Logo />
+        </div>
         <nav style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setView("about")} className="navbtn" style={{ ...styles.navBtn, ...(view === "about" ? styles.navActive : {}) }}>💖 About</button>
           <button onClick={() => setView("shop")} className="navbtn" style={{ ...styles.navBtn, ...(view === "shop" ? styles.navActive : {}) }}>🛍️ Shop</button>
           <button onClick={() => setView("admin")} className="navbtn" style={{ ...styles.navBtn, ...(view === "admin" ? styles.navActive : {}) }}>🔒 Owner</button>
         </nav>
@@ -150,7 +153,9 @@ function App() {
         ? <div style={{ textAlign: "center", padding: 80, fontFamily: "Pacifico", fontSize: 22, color: "#234" }}><span className="spin">🌀</span> Loading the sparkles…</div>
         : view === "shop"
           ? <Shop products={products} colors={colors} />
-          : <Admin products={products} colors={colors} />}
+          : view === "about"
+            ? <About />
+            : <Admin products={products} colors={colors} />}
 
       <footer style={styles.footer}>
         <div style={styles.footTitle}>📞 Get in touch</div>
@@ -165,6 +170,29 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/* ===================== ABOUT ===================== */
+function About() {
+  return (
+    <main style={styles.main}>
+      <div className="pop" style={styles.aboutCard}>
+        <div style={{ fontSize: 60, textAlign: "center" }}>🌈</div>
+        <h1 style={styles.aboutTitle}>Hi, I'm Pehr Ghani!</h1>
+        <p style={styles.aboutLead}>Welcome to my page 💖</p>
+        <p style={styles.aboutText}>
+          I love making loom bands — bracelets, necklaces and rings in every colour you can imagine.
+          What started as a hobby has become my little summer business, and who knows, maybe even something more one day!
+        </p>
+        <p style={styles.aboutText}>
+          Every piece is handmade by me, one band at a time. Thank you so much for visiting Loop Lab and supporting what I love to do. 🌟
+        </p>
+        <div style={{ textAlign: "center", marginTop: 24 }}>
+          <span style={styles.aboutSign}>— Pehr ✨</span>
+        </div>
+      </div>
+    </main>
   );
 }
 
@@ -599,6 +627,11 @@ const styles = {
   navActive: { background: "linear-gradient(90deg,#ff2e9a,#b026ff)", color: "#fff" },
   main: { position: "relative", zIndex: 2, maxWidth: 980, margin: "0 auto", padding: "28px 20px 60px" },
   hero: { textAlign: "center", padding: "20px 0 30px" },
+  aboutCard: { maxWidth: 620, margin: "20px auto", background: "#fff", borderRadius: 28, padding: "36px 32px", boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
+  aboutTitle: { fontFamily: "Pacifico", fontSize: 36, textAlign: "center", margin: "10px 0 4px", background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#39ff14)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
+  aboutLead: { fontFamily: "Pacifico", fontSize: 20, textAlign: "center", color: "#00b3a4", margin: "0 0 20px" },
+  aboutText: { fontSize: 17, lineHeight: 1.7, color: "#444", margin: "0 0 16px", textAlign: "center" },
+  aboutSign: { fontFamily: "Pacifico", fontSize: 22, color: "#ff2e9a" },
   heroTitle: { fontFamily: "Pacifico", fontSize: 42, margin: 0, lineHeight: 1.2 },
   heroSub: { fontSize: 18, color: "#456", marginTop: 10 },
   grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 22 },
