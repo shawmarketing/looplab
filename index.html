@@ -199,9 +199,11 @@ function About() {
 /* ===================== STOREFRONT ===================== */
 function Shop({ products, colors }) {
   const fb = window.fb;
-  const [selected, setSelected] = useState(null);
-  const [picked, setPicked] = useState([]);
-  const [qty, setQty] = useState(1);
+  const [view, setView] = useState("browse");      // browse | customise | cart
+  const [selected, setSelected] = useState(null);   // product being customised
+  const [units, setUnits] = useState([[]]);         // one entry per piece; each is an array of chosen colours
+  const [cart, setCart] = useState([]);             // [{product, price, qty, units:[[colourNames]]}]
+  // contact details (filled once, at checkout)
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -211,112 +213,218 @@ function Shop({ products, colors }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(null);
 
-  const toggleColor = (c) => setPicked((p) => p.find((x) => x.name === c.name) ? p.filter((x) => x.name !== c.name) : [...p, c]);
-  const startOrder = (p) => { setSelected(p); setPicked([]); setQty(1); setName(""); setPhone(""); setEmail(""); setAddress(""); setNote(""); setAgree(false); setDone(null); };
+  const qty = units.length;
+  const setQty = (n) => {
+    const next = Math.max(1, n || 1);
+    setUnits((prev) => {
+      const copy = prev.slice(0, next);
+      while (copy.length < next) copy.push([]);
+      return copy;
+    });
+  };
+  // toggle a colour for a specific piece (unit index)
+  const toggleColor = (unitIdx, c) => setUnits((prev) => prev.map((u, i) => {
+    if (i !== unitIdx) return u;
+    return u.find((x) => x.name === c.name) ? u.filter((x) => x.name !== c.name) : [...u, c];
+  }));
+  const startCustomise = (p) => { setSelected(p); setUnits([[]]); setView("customise"); };
+
+  const addToCart = () => {
+    if (units.some((u) => u.length === 0)) return alert("Please pick at least one colour for each piece 🌈");
+    setCart((c) => [...c, {
+      product: selected.sku, price: selected.price, qty: units.length,
+      units: units.map((u) => u.map((x) => x.name)),
+    }]);
+    setSelected(null); setUnits([[]]); setView("browse");
+  };
+  const removeFromCart = (i) => setCart((c) => c.filter((_, idx) => idx !== i));
+  const cartTotal = cart.reduce((s, it) => s + it.price * it.qty, 0);
+  const cartCount = cart.reduce((s, it) => s + it.qty, 0);
 
   const placeOrder = async () => {
+    if (cart.length === 0) return alert("Your cart is empty — add something first 🌈");
     if (!name.trim()) return alert("Please add your name 🙂");
     if (!phone.trim()) return alert("Please add your phone number 📱");
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) return alert("Please add a valid email id 📧");
     if (!address.trim()) return alert("Please add your delivery address 🏠");
-    if (picked.length === 0) return alert("Please pick at least one colour 🌈");
     if (!agree) return alert("Please accept the terms & conditions to continue 📜");
     const order = {
-      product: selected.sku, price: selected.price, qty, total: selected.price * qty,
-      colors: picked.map((c) => c.name), customer: name.trim(), phone: phone.trim(),
-      email: email.trim(), address: address.trim(), note: note.trim(),
+      items: cart.map((it) => ({ product: it.product, qty: it.qty, price: it.price, units: it.units })),
+      itemCount: cartCount,
+      total: cartTotal,
+      // readable summary: each piece's colours listed separately
+      summary: cart.map((it) => `${it.qty}× ${it.product} [${it.units.map((u) => u.join("+")).join(" | ")}]`).join("; "),
+      customer: name.trim(), phone: phone.trim(), email: email.trim(),
+      address: address.trim(), note: note.trim(),
       status: "New", time: new Date().toISOString(), createdAt: fb.serverTimestamp(),
     };
     setBusy(true);
     try {
       await fb.addDoc(fb.collection(fb.db, "orders"), order);
       setDone({ ...order });
+      setCart([]); setName(""); setPhone(""); setEmail(""); setAddress(""); setNote(""); setAgree(false);
     } catch (e) {
       alert("Sorry, the order couldn't be sent. Please check your internet and try again.");
     }
     setBusy(false);
   };
 
+  // ---- success screen ----
+  if (done) {
+    return (
+      <main style={styles.main}>
+        <div className="pop" style={styles.success}>
+          <div style={{ fontSize: 60 }}>🎉</div>
+          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Yay, order placed!</h2>
+          <p style={{ color: "#555" }}>Thanks {done.customer}! Your order of {done.itemCount} item{done.itemCount > 1 ? "s" : ""} is on the list:</p>
+          <div style={{ textAlign: "left", maxWidth: 400, margin: "0 auto 12px" }}>
+            {done.items.map((it, i) => (
+              <div key={i} style={{ fontSize: 14, color: "#555", padding: "6px 0", borderBottom: "1px dashed #eee" }}>
+                <strong>{it.qty}× {it.product}</strong>
+                {it.units.map((u, j) => (
+                  <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 10 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{u.join(", ")}</div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <p style={{ color: "#456", background: "#eafaff", borderRadius: 14, padding: "12px 16px", fontSize: 15 }}>💳 Someone will connect with you shortly on <strong>{done.phone}</strong> to arrange the prepaid payment (plus shipping). Thank you!</p>
+          <button className="cta" style={styles.cta} onClick={() => { setDone(null); setView("browse"); }}>Shop more →</button>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main style={styles.main}>
-      <section style={styles.hero}>
-        <h1 style={styles.heroTitle}>Handmade <span className="wiggle" style={{ color: NEON.pink }}>loom band</span> treasures</h1>
-        <p style={styles.heroSub}>Pick a style, choose your rainbow, and I’ll make it just for you! 🌈</p>
-      </section>
-
-      {!selected && (
-        <div style={styles.grid}>
-          {products.length === 0 && <div style={styles.empty}>No products yet — check back soon! 🌈</div>}
-          {products.map((p, i) => (
-            <div key={p.id} className="card pop" style={{ ...styles.card, animationDelay: `${i * 0.1}s` }}>
-              {p.image
-                ? <img src={p.image} alt={p.sku} style={styles.cardImg} />
-                : <div style={{ ...styles.cardImg, ...styles.cardImgBlank, background: bandGradient(i) }}><span style={{ fontSize: 13, color: "#fff", fontFamily: "Pacifico", textShadow: "0 1px 4px rgba(0,0,0,.25)" }}>📷 photo coming soon</span></div>}
-              <h3 style={styles.cardTitle}>{p.sku}</h3>
-              <p style={styles.cardDesc}>{p.desc}</p>
-              <div style={styles.priceRow}>
-                <span style={styles.price}>₹{Number(p.price).toFixed(0)}</span>
-                <button className="cta" style={styles.cta} onClick={() => startOrder(p)}>Make mine →</button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* floating cart button */}
+      {cart.length > 0 && view !== "cart" && (
+        <button className="cta" style={styles.cartFab} onClick={() => setView("cart")}>
+          🛒 View cart ({cartCount}) · ₹{cartTotal.toFixed(0)}
+        </button>
       )}
 
-      {selected && !done && (
+      {view === "browse" && (
+        <>
+          <section style={styles.hero}>
+            <h1 style={styles.heroTitle}>Handmade <span className="wiggle" style={{ color: NEON.pink }}>loom band</span> treasures</h1>
+            <p style={styles.heroSub}>Pick a style, choose your rainbow, and I’ll make it just for you! 🌈</p>
+          </section>
+          <div style={styles.grid}>
+            {products.length === 0 && <div style={styles.empty}>No products yet — check back soon! 🌈</div>}
+            {products.map((p, i) => (
+              <div key={p.id} className="card pop" style={{ ...styles.card, animationDelay: `${i * 0.1}s` }}>
+                {p.image
+                  ? <img src={p.image} alt={p.sku} style={styles.cardImg} />
+                  : <div style={{ ...styles.cardImg, ...styles.cardImgBlank, background: bandGradient(i) }}><span style={{ fontSize: 13, color: "#fff", fontFamily: "Pacifico", textShadow: "0 1px 4px rgba(0,0,0,.25)" }}>📷 photo coming soon</span></div>}
+                <h3 style={styles.cardTitle}>{p.sku}</h3>
+                <p style={styles.cardDesc}>{p.desc}</p>
+                <div style={styles.priceRow}>
+                  <span style={styles.price}>₹{Number(p.price).toFixed(0)}</span>
+                  <button className="cta" style={styles.cta} onClick={() => startCustomise(p)}>Make mine →</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {view === "customise" && selected && (
         <div className="pop" style={styles.builder}>
-          <button style={styles.back} onClick={() => setSelected(null)}>← back</button>
+          <button style={styles.back} onClick={() => { setSelected(null); setView("browse"); }}>← back</button>
           {selected.image && <img src={selected.image} alt={selected.sku} style={styles.builderImg} />}
           <h2 style={styles.builderTitle}>Customise your <span style={{ color: NEON.pink }}>{selected.sku}</span></h2>
           <p style={{ color: "#555", marginTop: -6 }}>{selected.desc}</p>
 
-          <h4 style={styles.label}>Pick your colours 🌈</h4>
-          <div style={styles.swatchWrap}>
-            {colors.map((c) => {
-              const on = picked.find((x) => x.name === c.name);
-              return <button key={c.id || c.name} onClick={() => toggleColor(c)} className="swatch" title={c.name}
-                style={{ ...styles.swatch, background: swatchBg(c), outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: swatchGlow(c) }}>{on ? "✓" : ""}</button>;
-            })}
+          <div style={{ ...styles.formRow, marginTop: 6, alignItems: "center" }}>
+            <div style={{ width: 160 }}>
+              <h4 style={styles.label}>How many?</h4>
+              <div style={styles.stepper}>
+                <button style={styles.stepBtn} onClick={() => setQty(qty - 1)}>−</button>
+                <span style={{ fontFamily: "Pacifico", fontSize: 20, minWidth: 28, textAlign: "center" }}>{qty}</span>
+                <button style={styles.stepBtn} onClick={() => setQty(qty + 1)}>+</button>
+              </div>
+            </div>
+            {qty > 1 && <div style={{ fontSize: 13, color: "#777", flex: 1, minWidth: 180 }}>Pick colours for each piece separately below — they can all be different! 🌈</div>}
           </div>
-          <div style={{ fontSize: 13, color: "#777", marginTop: 6 }}>{picked.length ? "Chosen: " + picked.map((c) => c.name).join(", ") : "Tap the colours you want"}</div>
 
-          <div style={styles.formRow}>
-            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Your name</h4><input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mia Sharma" /></div>
-            <div style={{ width: 120 }}><h4 style={styles.label}>How many?</h4><input type="number" min="1" style={styles.input} value={qty} onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))} /></div>
-          </div>
-          <div style={styles.formRow}>
-            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Phone number</h4><input style={styles.input} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 98765 43210" /></div>
-            <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Email id</h4><input style={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. mia@email.com" /></div>
-          </div>
-          <h4 style={styles.label}>Delivery address</h4>
-          <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Flat / house, street, area, city, pincode" />
-          <h4 style={styles.label}>Any special wishes? (optional)</h4>
-          <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. make it extra sparkly!" />
-
-          <div style={styles.terms}>
-            <h4 style={{ ...styles.label, margin: "0 0 8px" }}>📜 Terms &amp; Conditions</h4>
-            <ul style={styles.termsList}>
-              <li>No Cash on Delivery (COD). All orders are <strong>prepaid</strong>.</li>
-              <li>Shipping charges are <strong>extra</strong> and added to your order.</li>
-              <li>Once your order is placed, someone will connect with you for the payment.</li>
-            </ul>
-            <label style={styles.agreeRow}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ width: 18, height: 18 }} /><span>I have read and accept the terms &amp; conditions.</span></label>
-          </div>
+          {/* one colour picker per piece */}
+          {units.map((unit, idx) => (
+            <div key={idx} style={styles.unitBox}>
+              <h4 style={{ ...styles.label, marginTop: 0 }}>
+                {qty > 1 ? `${selected.sku} #${idx + 1} — pick colours 🌈` : "Pick your colours 🌈"}
+              </h4>
+              <div style={styles.swatchWrap}>
+                {colors.map((c) => {
+                  const on = unit.find((x) => x.name === c.name);
+                  return <button key={c.id || c.name} onClick={() => toggleColor(idx, c)} className="swatch" title={c.name}
+                    style={{ ...styles.swatch, background: swatchBg(c), outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: swatchGlow(c) }}>{on ? "✓" : ""}</button>;
+                })}
+              </div>
+              <div style={{ fontSize: 13, color: "#777", marginTop: 6 }}>{unit.length ? "Chosen: " + unit.map((c) => c.name).join(", ") : "Tap the colours you want"}</div>
+            </div>
+          ))}
 
           <div style={styles.orderBar}>
-            <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>Total: <span style={{ color: NEON.pink }}>₹{(selected.price * qty).toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span></div>
-            <button className="cta" disabled={busy} style={{ ...styles.cta, fontSize: 18, padding: "14px 28px", opacity: busy ? 0.6 : 1 }} onClick={placeOrder}>{busy ? <span><span className="spin">🌀</span> Sending…</span> : "Place order 🎉"}</button>
+            <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>₹{(selected.price * qty).toFixed(0)}</div>
+            <button className="cta" style={{ ...styles.ctaBig }} onClick={addToCart}>🛒 Add to cart</button>
           </div>
         </div>
       )}
 
-      {done && (
-        <div className="pop" style={styles.success}>
-          <div style={{ fontSize: 60 }}>🎉</div>
-          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Yay, order placed!</h2>
-          <p style={{ color: "#555" }}>Thanks {done.customer}! Your {done.qty}× {done.product} in {done.colors.join(", ")} is on the list.</p>
-          <p style={{ color: "#456", background: "#eafaff", borderRadius: 14, padding: "12px 16px", fontSize: 15 }}>💳 Someone will connect with you shortly on <strong>{done.phone}</strong> to arrange the prepaid payment (plus shipping). Thank you!</p>
-          <button className="cta" style={styles.cta} onClick={() => { setSelected(null); setDone(null); }}>Shop more →</button>
+      {view === "cart" && (
+        <div className="pop" style={styles.builder}>
+          <button style={styles.back} onClick={() => setView("browse")}>← keep shopping</button>
+          <h2 style={styles.builderTitle}>Your cart 🛒</h2>
+
+          {cart.length === 0 && <div style={styles.empty}>Your cart is empty 🌈</div>}
+
+          {cart.map((it, i) => (
+            <div key={i} style={styles.cartRow}>
+              <div style={{ flex: 1 }}>
+                <strong style={{ fontFamily: "Pacifico", fontSize: 17 }}>{it.qty}× {it.product}</strong>
+                {it.units.map((u, j) => (
+                  <div key={j} style={{ fontSize: 13, color: "#777" }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{u.join(", ")}</div>
+                ))}
+              </div>
+              <div style={{ fontFamily: "Pacifico", fontSize: 17, color: NEON.pink, marginRight: 12 }}>₹{(it.price * it.qty).toFixed(0)}</div>
+              <button style={styles.del} onClick={() => removeFromCart(i)}>remove</button>
+            </div>
+          ))}
+
+          {cart.length > 0 && (
+            <>
+              <div style={{ textAlign: "right", fontFamily: "Pacifico", fontSize: 22, margin: "14px 0" }}>
+                Total: <span style={{ color: NEON.pink }}>₹{cartTotal.toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span>
+              </div>
+
+              <h3 style={{ ...styles.builderTitle, fontSize: 22 }}>Your details</h3>
+              <div style={styles.formRow}>
+                <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Your name</h4><input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mia Sharma" /></div>
+                <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Phone number</h4><input style={styles.input} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 98765 43210" /></div>
+              </div>
+              <h4 style={styles.label}>Email id</h4>
+              <input style={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. mia@email.com" />
+              <h4 style={styles.label}>Delivery address</h4>
+              <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Flat / house, street, area, city, pincode" />
+              <h4 style={styles.label}>Any special wishes? (optional)</h4>
+              <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. make it extra sparkly!" />
+
+              <div style={styles.terms}>
+                <h4 style={{ ...styles.label, margin: "0 0 8px" }}>📜 Terms &amp; Conditions</h4>
+                <ul style={styles.termsList}>
+                  <li>No Cash on Delivery (COD). All orders are <strong>prepaid</strong>.</li>
+                  <li>Shipping charges are <strong>extra</strong> and added to your order.</li>
+                  <li>Once your order is placed, someone will connect with you for the payment.</li>
+                </ul>
+                <label style={styles.agreeRow}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ width: 18, height: 18 }} /><span>I have read and accept the terms &amp; conditions.</span></label>
+              </div>
+
+              <div style={styles.orderBar}>
+                <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>Total: <span style={{ color: NEON.pink }}>₹{cartTotal.toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span></div>
+                <button className="cta" disabled={busy} style={{ ...styles.cta, fontSize: 18, padding: "14px 28px", opacity: busy ? 0.6 : 1 }} onClick={placeOrder}>{busy ? <span><span className="spin">🌀</span> Sending…</span> : "Place order 🎉"}</button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </main>
@@ -403,10 +511,23 @@ function OrdersPanel({ orders }) {
         <div key={o.id} className="card" style={styles.orderCard}>
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-              <strong style={{ fontFamily: "Pacifico", fontSize: 18 }}>{o.qty}× {o.product}</strong>
+              <strong style={{ fontFamily: "Pacifico", fontSize: 18 }}>{o.items ? `${o.itemCount || o.items.length} item${(o.itemCount || o.items.length) > 1 ? "s" : ""}` : `${o.qty}× ${o.product}`}</strong>
               <span style={{ ...styles.badge, background: statusColor(o.status) }}>{o.status}</span>
             </div>
-            <div style={{ color: "#555", margin: "4px 0" }}>For <strong>{o.customer}</strong> · {(o.colors || []).join(", ")}</div>
+            {/* items: show each product, and each piece's colours when there are units */}
+            {o.items
+              ? <div style={{ margin: "4px 0" }}>{o.items.map((it, i) => (
+                  <div key={i} style={{ color: "#555", fontSize: 14, marginBottom: 4 }}>
+                    <strong>• {it.qty}× {it.product}</strong>
+                    {it.units
+                      ? it.units.map((u, j) => (
+                          <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 14 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{(u || []).join(", ")}</div>
+                        ))
+                      : <span style={{ color: "#888" }}> — {(it.colors || []).join(", ")}</span>}
+                  </div>
+                ))}</div>
+              : <div style={{ color: "#555", margin: "4px 0" }}>{(o.colors || []).join(", ")}</div>}
+            <div style={{ color: "#555", margin: "4px 0" }}>For <strong>{o.customer}</strong></div>
             <div style={{ fontSize: 13, color: "#666" }}>📱 {o.phone || "—"} · 📧 {o.email || "—"}</div>
             {o.address && <div style={{ fontSize: 13, color: "#666" }}>🏠 {o.address}</div>}
             {o.note && <div style={{ fontSize: 13, color: "#888", fontStyle: "italic" }}>“{o.note}”</div>}
@@ -655,6 +776,12 @@ const styles = {
   formRow: { display: "flex", gap: 14, flexWrap: "wrap" },
   input: { width: "100%", padding: "12px 14px", borderRadius: 14, border: "2px solid #eee", fontSize: 15, fontFamily: "'Comic Neue', cursive", marginTop: 4 },
   orderBar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 18, borderTop: "2px dashed #eee", flexWrap: "wrap", gap: 12 },
+  cartFab: { position: "fixed", bottom: 24, right: 24, zIndex: 50, border: "none", borderRadius: 999, padding: "14px 22px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 16, color: "#fff", background: "linear-gradient(90deg,#ff2e9a,#b026ff)", boxShadow: "0 8px 24px rgba(176,38,255,.45)" },
+  cartRow: { display: "flex", alignItems: "center", gap: 8, padding: "12px 0", borderBottom: "1px dashed #eee" },
+  ctaBig: { border: "none", borderRadius: 999, padding: "15px 32px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 19, color: "#fff", background: "linear-gradient(90deg,#ff1f8f,#b026ff)", boxShadow: "0 8px 22px rgba(176,38,255,.5)", letterSpacing: "0.3px", border: "2px solid #fff" },
+  stepper: { display: "flex", alignItems: "center", gap: 14, marginTop: 6, background: "#f6f6fb", borderRadius: 999, padding: "6px 10px", width: "fit-content" },
+  stepBtn: { width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 22, lineHeight: 1, color: "#fff", background: "linear-gradient(135deg,#ff2e9a,#ff7a00)", fontFamily: "Pacifico" },
+  unitBox: { background: "#fafaff", border: "2px dashed #e3d9ff", borderRadius: 16, padding: "14px 16px", marginTop: 14 },
   terms: { marginTop: 22, background: "#fff7fb", border: "2px dashed #ffb3d9", borderRadius: 16, padding: "14px 18px" },
   termsList: { margin: "0 0 10px", paddingLeft: 18, color: "#555", fontSize: 14, lineHeight: 1.6 },
   agreeRow: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#333", cursor: "pointer" },
