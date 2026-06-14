@@ -249,7 +249,8 @@ function Shop({ products, colors }) {
     if (!address.trim()) return alert("Please add your delivery address 🏠");
     if (!agree) return alert("Please accept the terms & conditions to continue 📜");
     const order = {
-      items: cart.map((it) => ({ product: it.product, qty: it.qty, price: it.price, units: it.units })),
+      // each piece stored as an object {colors:[...]} — Firestore disallows arrays directly inside arrays
+      items: cart.map((it) => ({ product: it.product, qty: it.qty, price: it.price, units: it.units.map((u) => ({ colors: u })) })),
       itemCount: cartCount,
       total: cartTotal,
       // readable summary: each piece's colours listed separately
@@ -282,7 +283,7 @@ function Shop({ products, colors }) {
               <div key={i} style={{ fontSize: 14, color: "#555", padding: "6px 0", borderBottom: "1px dashed #eee" }}>
                 <strong>{it.qty}× {it.product}</strong>
                 {it.units.map((u, j) => (
-                  <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 10 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{u.join(", ")}</div>
+                  <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 10 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{(u.colors || u).join(", ")}</div>
                 ))}
               </div>
             ))}
@@ -521,7 +522,7 @@ function OrdersPanel({ orders }) {
                     <strong>• {it.qty}× {it.product}</strong>
                     {it.units
                       ? it.units.map((u, j) => (
-                          <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 14 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{(u || []).join(", ")}</div>
+                          <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 14 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{((u && u.colors) || u || []).join(", ")}</div>
                         ))
                       : <span style={{ color: "#888" }}> — {(it.colors || []).join(", ")}</span>}
                   </div>
