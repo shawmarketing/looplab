@@ -89,47 +89,133 @@ window.addEventListener("load", () => {
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<script type="text/babel" data-presets="react">
-const { useState, useEffect } = React;
-
+<script>
+const {
+  useState,
+  useEffect
+} = React;
 const ADMIN_DEFAULTS = {
-  products: [
-    { sku: "Bracelet", price: 50, desc: "A stretchy rainbow bracelet made just for you.", image: "" },
-    { sku: "Necklace", price: 120, desc: "A long loopy necklace in your favourite colours.", image: "" },
-    { sku: "Rings", price: 30, desc: "Tiny loom band rings — get a set!", image: "" },
-  ],
-  colors: [
-    { name: "Neon Pink", hex: "#ff2e9a" }, { name: "Lime", hex: "#39ff14" },
-    { name: "Sunshine", hex: "#fff200" }, { name: "Aqua", hex: "#00e5ff" },
-    { name: "Tangerine", hex: "#ff7a00" }, { name: "Grape", hex: "#b026ff" },
-    { name: "Bubblegum", hex: "#ff6ec7" }, { name: "Mint", hex: "#7dffd4" },
-  ],
+  products: [{
+    sku: "Bracelet",
+    price: 50,
+    desc: "A stretchy rainbow bracelet made just for you.",
+    image: ""
+  }, {
+    sku: "Necklace",
+    price: 120,
+    desc: "A long loopy necklace in your favourite colours.",
+    image: ""
+  }, {
+    sku: "Rings",
+    price: 30,
+    desc: "Tiny loom band rings — get a set!",
+    image: ""
+  }],
+  colors: [{
+    name: "Neon Pink",
+    hex: "#ff2e9a"
+  }, {
+    name: "Lime",
+    hex: "#39ff14"
+  }, {
+    name: "Sunshine",
+    hex: "#fff200"
+  }, {
+    name: "Aqua",
+    hex: "#00e5ff"
+  }, {
+    name: "Tangerine",
+    hex: "#ff7a00"
+  }, {
+    name: "Grape",
+    hex: "#b026ff"
+  }, {
+    name: "Bubblegum",
+    hex: "#ff6ec7"
+  }, {
+    name: "Mint",
+    hex: "#7dffd4"
+  }]
+};
+const NEON = {
+  pink: "#ff2e9a",
+  green: "#39ff14",
+  yellow: "#fff200",
+  blue: "#00e5ff",
+  orange: "#ff7a00",
+  purple: "#b026ff"
 };
 
-const NEON = { pink: "#ff2e9a", green: "#39ff14", yellow: "#fff200", blue: "#00e5ff", orange: "#ff7a00", purple: "#b026ff" };
-
 /* ---------- Logo ---------- */
-function Logo({ size = 44 }) {
+function Logo({
+  size = 44
+}) {
   const fs = size * 0.58;
-  const Loop = ({ stroke }) => (
-    <svg width={fs * 0.92} height={fs * 0.92} viewBox="0 0 40 40" fill="none"
-      style={{ display: "inline-block", verticalAlign: "middle", margin: "0 1px", filter: `drop-shadow(0 0 4px ${stroke})` }}>
-      <circle cx="20" cy="20" r="13" stroke={stroke} strokeWidth="5.5" fill="none" />
-      <circle cx="20" cy="20" r="6" stroke={stroke} strokeWidth="3" fill="none" opacity="0.55" />
-    </svg>
-  );
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-      <span style={logoText(fs)}>L</span><Loop stroke={NEON.pink} /><Loop stroke={NEON.blue} /><span style={logoText(fs)}>P</span>
-      <span style={{ width: 8 }} />
-      <span style={{ ...logoText(fs), background: "linear-gradient(90deg,#39ff14,#00e5ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Lab</span>
-    </div>
-  );
+  const Loop = ({
+    stroke
+  }) => /*#__PURE__*/React.createElement("svg", {
+    width: fs * 0.92,
+    height: fs * 0.92,
+    viewBox: "0 0 40 40",
+    fill: "none",
+    style: {
+      display: "inline-block",
+      verticalAlign: "middle",
+      margin: "0 1px",
+      filter: `drop-shadow(0 0 4px ${stroke})`
+    }
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: "20",
+    cy: "20",
+    r: "13",
+    stroke: stroke,
+    strokeWidth: "5.5",
+    fill: "none"
+  }), /*#__PURE__*/React.createElement("circle", {
+    cx: "20",
+    cy: "20",
+    r: "6",
+    stroke: stroke,
+    strokeWidth: "3",
+    fill: "none",
+    opacity: "0.55"
+  }));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: logoText(fs)
+  }, "L"), /*#__PURE__*/React.createElement(Loop, {
+    stroke: NEON.pink
+  }), /*#__PURE__*/React.createElement(Loop, {
+    stroke: NEON.blue
+  }), /*#__PURE__*/React.createElement("span", {
+    style: logoText(fs)
+  }, "P"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 8
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...logoText(fs),
+      background: "linear-gradient(90deg,#39ff14,#00e5ff)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent"
+    }
+  }, "Lab"));
 }
-const logoText = (fs) => ({ fontFamily: "'Pacifico', cursive", fontWeight: 400, fontSize: fs * 1.05, lineHeight: 1, background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#fff200)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" });
-
+const logoText = fs => ({
+  fontFamily: "'Pacifico', cursive",
+  fontWeight: 400,
+  fontSize: fs * 1.05,
+  lineHeight: 1,
+  background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#fff200)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent"
+});
 function App() {
   const [view, setView] = useState("shop");
   const [products, setProducts] = useState([]);
@@ -140,106 +226,174 @@ function App() {
   // Live-subscribe to products & colours (visible to everyone)
   useEffect(() => {
     if (!fb) return;
-    const unsubP = fb.onSnapshot(fb.collection(fb.db, "products"), (snap) => {
-      setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const unsubP = fb.onSnapshot(fb.collection(fb.db, "products"), snap => {
+      setProducts(snap.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      })));
       setReady(true);
     }, () => setReady(true));
-    const unsubC = fb.onSnapshot(fb.collection(fb.db, "colors"), (snap) => {
-      setColors(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const unsubC = fb.onSnapshot(fb.collection(fb.db, "colors"), snap => {
+      setColors(snap.docs.map(d => ({
+        id: d.id,
+        ...d.data()
+      })));
     });
-    return () => { unsubP(); unsubC(); };
+    return () => {
+      unsubP();
+      unsubC();
+    };
   }, []);
-
-  return (
-    <div style={styles.root}>
-      <div style={styles.blobs} aria-hidden>
-        <span className="blob b1" /><span className="blob b2" /><span className="blob b3" /><span className="blob b4" />
-      </div>
-      <header style={styles.header}>
-        <div onClick={() => setView("shop")} style={{ cursor: "pointer" }} title="Back to home">
-          <Logo />
-        </div>
-        <nav style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => setView("about")} className="navbtn" style={{ ...styles.navBtn, ...(view === "about" ? styles.navActive : {}) }}>💖 About</button>
-          <button onClick={() => setView("shop")} className="navbtn" style={{ ...styles.navBtn, ...(view === "shop" ? styles.navActive : {}) }}>🛍️ Shop</button>
-          <button onClick={() => setView("testimonials")} className="navbtn" style={{ ...styles.navBtn, ...(view === "testimonials" ? styles.navActive : {}) }}>⭐ Testimonials</button>
-          <button onClick={() => setView("admin")} className="navbtn" style={{ ...styles.navBtn, ...(view === "admin" ? styles.navActive : {}) }}>🔒 Owner</button>
-        </nav>
-      </header>
-
-      {!ready
-        ? <div style={{ textAlign: "center", padding: 80, fontFamily: "Pacifico", fontSize: 22, color: "#234" }}><span className="spin">🌀</span> Loading the sparkles…</div>
-        : view === "shop"
-          ? <Shop products={products} colors={colors} />
-          : view === "about"
-            ? <About />
-            : view === "testimonials"
-              ? <Testimonials />
-              : <Admin products={products} colors={colors} />}
-
-      <footer style={styles.footer}>
-        <div style={styles.footTitle}>📞 Get in touch</div>
-        <div style={styles.footRow}>
-          <a href="tel:+919137412453" style={styles.footLink}>📱 +91 91374 12453</a>
-          <a href="mailto:looplab2016@gmail.com" style={styles.footLink}>📧 looplab2016@gmail.com</a>
-        </div>
-        <div style={styles.footTag}>Made with 💖 and rubber bands · Loop Lab</div>
-        <div style={styles.footPrivacy}>
-          We only use your name, contact details and address to process and deliver your order.
-          We never sell or share your information. Questions? Email us above.
-        </div>
-      </footer>
-    </div>
-  );
+  return /*#__PURE__*/React.createElement("div", {
+    style: styles.root
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.blobs,
+    "aria-hidden": true
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "blob b1"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "blob b2"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "blob b3"
+  }), /*#__PURE__*/React.createElement("span", {
+    className: "blob b4"
+  })), /*#__PURE__*/React.createElement("header", {
+    style: styles.header
+  }, /*#__PURE__*/React.createElement("div", {
+    onClick: () => setView("shop"),
+    style: {
+      cursor: "pointer"
+    },
+    title: "Back to home"
+  }, /*#__PURE__*/React.createElement(Logo, null)), /*#__PURE__*/React.createElement("nav", {
+    style: {
+      display: "flex",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => setView("about"),
+    className: "navbtn",
+    style: {
+      ...styles.navBtn,
+      ...(view === "about" ? styles.navActive : {})
+    }
+  }, "💖 About"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setView("shop"),
+    className: "navbtn",
+    style: {
+      ...styles.navBtn,
+      ...(view === "shop" ? styles.navActive : {})
+    }
+  }, "🛍️ Shop"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setView("testimonials"),
+    className: "navbtn",
+    style: {
+      ...styles.navBtn,
+      ...(view === "testimonials" ? styles.navActive : {})
+    }
+  }, "⭐ Testimonials"), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setView("admin"),
+    className: "navbtn",
+    style: {
+      ...styles.navBtn,
+      ...(view === "admin" ? styles.navActive : {})
+    }
+  }, "🔒 Owner"))), !ready ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: 80,
+      fontFamily: "Pacifico",
+      fontSize: 22,
+      color: "#234"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "spin"
+  }, "🌀"), " Loading the sparkles…") : view === "shop" ? /*#__PURE__*/React.createElement(Shop, {
+    products: products,
+    colors: colors
+  }) : view === "about" ? /*#__PURE__*/React.createElement(About, null) : view === "testimonials" ? /*#__PURE__*/React.createElement(Testimonials, null) : /*#__PURE__*/React.createElement(Admin, {
+    products: products,
+    colors: colors
+  }), /*#__PURE__*/React.createElement("footer", {
+    style: styles.footer
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.footTitle
+  }, "📞 Get in touch"), /*#__PURE__*/React.createElement("div", {
+    style: styles.footRow
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "tel:+919137412453",
+    style: styles.footLink
+  }, "📱 +91 91374 12453"), /*#__PURE__*/React.createElement("a", {
+    href: "mailto:looplab2016@gmail.com",
+    style: styles.footLink
+  }, "📧 looplab2016@gmail.com")), /*#__PURE__*/React.createElement("div", {
+    style: styles.footTag
+  }, "Made with 💖 and rubber bands · Loop Lab"), /*#__PURE__*/React.createElement("div", {
+    style: styles.footPrivacy
+  }, "We only use your name, contact details and address to process and deliver your order. We never sell or share your information. Questions? Email us above.")));
 }
 
 /* ===================== TESTIMONIALS ===================== */
 function Testimonials() {
-  return (
-    <main style={styles.main}>
-      <div className="pop" style={styles.aboutCard}>
-        <div style={{ fontSize: 60, textAlign: "center" }}>⭐</div>
-        <h1 style={styles.aboutTitle}>Testimonials</h1>
-        <p style={styles.aboutLead}>Coming soon! 💫</p>
-        <p style={styles.aboutText}>
-          Happy customers will be sharing their Loop Lab love here very soon.
-          Check back to see what everyone is saying! 🌈
-        </p>
-      </div>
-    </main>
-  );
+  return /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop",
+    style: styles.aboutCard
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 60,
+      textAlign: "center"
+    }
+  }, "⭐"), /*#__PURE__*/React.createElement("h1", {
+    style: styles.aboutTitle
+  }, "Testimonials"), /*#__PURE__*/React.createElement("p", {
+    style: styles.aboutLead
+  }, "Coming soon! 💫"), /*#__PURE__*/React.createElement("p", {
+    style: styles.aboutText
+  }, "Happy customers will be sharing their Loop Lab love here very soon. Check back to see what everyone is saying! 🌈")));
 }
 
 /* ===================== ABOUT ===================== */
 function About() {
-  return (
-    <main style={styles.main}>
-      <div className="pop" style={styles.aboutCard}>
-        <div style={{ fontSize: 60, textAlign: "center" }}>🌈</div>
-        <h1 style={styles.aboutTitle}>Hi, I'm Pehr Ghani!</h1>
-        <p style={styles.aboutLead}>Welcome to my page 💖</p>
-        <p style={styles.aboutText}>
-          I love making loom bands — bracelets, necklaces and rings in every colour you can imagine.
-          What started as a hobby has become my little summer business, and who knows, maybe even something more one day!
-        </p>
-        <p style={styles.aboutText}>
-          Every piece is handmade by me, one band at a time. Thank you so much for visiting Loop Lab and supporting what I love to do. 🌟
-        </p>
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          <span style={styles.aboutSign}>— Pehr ✨</span>
-        </div>
-      </div>
-    </main>
-  );
+  return /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pop",
+    style: styles.aboutCard
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 60,
+      textAlign: "center"
+    }
+  }, "🌈"), /*#__PURE__*/React.createElement("h1", {
+    style: styles.aboutTitle
+  }, "Hi, I'm Pehr Ghani!"), /*#__PURE__*/React.createElement("p", {
+    style: styles.aboutLead
+  }, "Welcome to my page 💖"), /*#__PURE__*/React.createElement("p", {
+    style: styles.aboutText
+  }, "I love making loom bands — bracelets, necklaces and rings in every colour you can imagine. What started as a hobby has become my little summer business, and who knows, maybe even something more one day!"), /*#__PURE__*/React.createElement("p", {
+    style: styles.aboutText
+  }, "Every piece is handmade by me, one band at a time. Thank you so much for visiting Loop Lab and supporting what I love to do. 🌟"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      marginTop: 24
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: styles.aboutSign
+  }, "— Pehr ✨"))));
 }
 
 /* ===================== STOREFRONT ===================== */
-function Shop({ products, colors }) {
+function Shop({
+  products,
+  colors
+}) {
   const fb = window.fb;
-  const [view, setView] = useState("browse");      // browse | customise | cart
-  const [selected, setSelected] = useState(null);   // product being customised
-  const [units, setUnits] = useState([[]]);         // one entry per piece; each is an array of chosen colours
-  const [cart, setCart] = useState([]);             // [{product, price, qty, units:[[colourNames]]}]
+  const [view, setView] = useState("browse"); // browse | customise | cart
+  const [selected, setSelected] = useState(null); // product being customised
+  const [units, setUnits] = useState([[]]); // one entry per piece; each is an array of chosen colours
+  const [cart, setCart] = useState([]); // [{product, price, qty, units:[[colourNames]]}]
   // contact details (filled once, at checkout)
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -249,35 +403,40 @@ function Shop({ products, colors }) {
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(null);
-
   const qty = units.length;
-  const setQty = (n) => {
+  const setQty = n => {
     const next = Math.max(1, n || 1);
-    setUnits((prev) => {
+    setUnits(prev => {
       const copy = prev.slice(0, next);
       while (copy.length < next) copy.push([]);
       return copy;
     });
   };
   // toggle a colour for a specific piece (unit index)
-  const toggleColor = (unitIdx, c) => setUnits((prev) => prev.map((u, i) => {
+  const toggleColor = (unitIdx, c) => setUnits(prev => prev.map((u, i) => {
     if (i !== unitIdx) return u;
-    return u.find((x) => x.name === c.name) ? u.filter((x) => x.name !== c.name) : [...u, c];
+    return u.find(x => x.name === c.name) ? u.filter(x => x.name !== c.name) : [...u, c];
   }));
-  const startCustomise = (p) => { setSelected(p); setUnits([[]]); setView("customise"); };
-
-  const addToCart = () => {
-    if (units.some((u) => u.length === 0)) return alert("Please pick at least one colour for each piece 🌈");
-    setCart((c) => [...c, {
-      product: selected.sku, price: selected.price, qty: units.length,
-      units: units.map((u) => u.map((x) => x.name)),
-    }]);
-    setSelected(null); setUnits([[]]); setView("browse");
+  const startCustomise = p => {
+    setSelected(p);
+    setUnits([[]]);
+    setView("customise");
   };
-  const removeFromCart = (i) => setCart((c) => c.filter((_, idx) => idx !== i));
+  const addToCart = () => {
+    if (units.some(u => u.length === 0)) return alert("Please pick at least one colour for each piece 🌈");
+    setCart(c => [...c, {
+      product: selected.sku,
+      price: selected.price,
+      qty: units.length,
+      units: units.map(u => u.map(x => x.name))
+    }]);
+    setSelected(null);
+    setUnits([[]]);
+    setView("browse");
+  };
+  const removeFromCart = i => setCart(c => c.filter((_, idx) => idx !== i));
   const cartTotal = cart.reduce((s, it) => s + it.price * it.qty, 0);
   const cartCount = cart.reduce((s, it) => s + it.qty, 0);
-
   const placeOrder = async () => {
     if (cart.length === 0) return alert("Your cart is empty — add something first 🌈");
     if (!name.trim()) return alert("Please add your name 🙂");
@@ -287,20 +446,40 @@ function Shop({ products, colors }) {
     if (!agree) return alert("Please accept the terms & conditions to continue 📜");
     const order = {
       // each piece stored as an object {colors:[...]} — Firestore disallows arrays directly inside arrays
-      items: cart.map((it) => ({ product: it.product, qty: it.qty, price: it.price, units: it.units.map((u) => ({ colors: u })) })),
+      items: cart.map(it => ({
+        product: it.product,
+        qty: it.qty,
+        price: it.price,
+        units: it.units.map(u => ({
+          colors: u
+        }))
+      })),
       itemCount: cartCount,
       total: cartTotal,
       // readable summary: each piece's colours listed separately
-      summary: cart.map((it) => `${it.qty}× ${it.product} [${it.units.map((u) => u.join("+")).join(" | ")}]`).join("; "),
-      customer: name.trim(), phone: phone.trim(), email: email.trim(),
-      address: address.trim(), note: note.trim(),
-      status: "New", time: new Date().toISOString(), createdAt: fb.serverTimestamp(),
+      summary: cart.map(it => `${it.qty}× ${it.product} [${it.units.map(u => u.join("+")).join(" | ")}]`).join("; "),
+      customer: name.trim(),
+      phone: phone.trim(),
+      email: email.trim(),
+      address: address.trim(),
+      note: note.trim(),
+      status: "New",
+      time: new Date().toISOString(),
+      createdAt: fb.serverTimestamp()
     };
     setBusy(true);
     try {
       await fb.addDoc(fb.collection(fb.db, "orders"), order);
-      setDone({ ...order });
-      setCart([]); setName(""); setPhone(""); setEmail(""); setAddress(""); setNote(""); setAgree(false);
+      setDone({
+        ...order
+      });
+      setCart([]);
+      setName("");
+      setPhone("");
+      setEmail("");
+      setAddress("");
+      setNote("");
+      setAgree(false);
     } catch (e) {
       alert("Sorry, the order couldn't be sent. Please check your internet and try again.");
     }
@@ -309,168 +488,394 @@ function Shop({ products, colors }) {
 
   // ---- success screen ----
   if (done) {
-    return (
-      <main style={styles.main}>
-        <div className="pop" style={styles.success}>
-          <div style={{ fontSize: 60 }}>🎉</div>
-          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Yay, order placed!</h2>
-          <p style={{ color: "#555" }}>Thanks {done.customer}! Your order of {done.itemCount} item{done.itemCount > 1 ? "s" : ""} is on the list:</p>
-          <div style={{ textAlign: "left", maxWidth: 400, margin: "0 auto 12px" }}>
-            {done.items.map((it, i) => (
-              <div key={i} style={{ fontSize: 14, color: "#555", padding: "6px 0", borderBottom: "1px dashed #eee" }}>
-                <strong>{it.qty}× {it.product}</strong>
-                {it.units.map((u, j) => (
-                  <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 10 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{(u.colors || u).join(", ")}</div>
-                ))}
-              </div>
-            ))}
-          </div>
-          <p style={{ color: "#456", background: "#eafaff", borderRadius: 14, padding: "12px 16px", fontSize: 15 }}>💳 Someone will connect with you shortly on <strong>{done.phone}</strong> to arrange the prepaid payment (plus shipping). Thank you!</p>
-          <button className="cta" style={styles.cta} onClick={() => { setDone(null); setView("browse"); }}>Shop more →</button>
-        </div>
-      </main>
-    );
+    return /*#__PURE__*/React.createElement("main", {
+      style: styles.main
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "pop",
+      style: styles.success
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 60
+      }
+    }, "🎉"), /*#__PURE__*/React.createElement("h2", {
+      style: {
+        fontFamily: "Pacifico",
+        margin: "8px 0"
+      }
+    }, "Yay, order placed!"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: "#555"
+      }
+    }, "Thanks ", done.customer, "! Your order of ", done.itemCount, " item", done.itemCount > 1 ? "s" : "", " is on the list:"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        textAlign: "left",
+        maxWidth: 400,
+        margin: "0 auto 12px"
+      }
+    }, done.items.map((it, i) => /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        fontSize: 14,
+        color: "#555",
+        padding: "6px 0",
+        borderBottom: "1px dashed #eee"
+      }
+    }, /*#__PURE__*/React.createElement("strong", null, it.qty, "× ", it.product), it.units.map((u, j) => /*#__PURE__*/React.createElement("div", {
+      key: j,
+      style: {
+        color: "#888",
+        fontSize: 13,
+        marginLeft: 10
+      }
+    }, it.qty > 1 ? `#${j + 1}: ` : "", (u.colors || u).join(", ")))))), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: "#456",
+        background: "#eafaff",
+        borderRadius: 14,
+        padding: "12px 16px",
+        fontSize: 15
+      }
+    }, "💳 Someone will connect with you shortly on ", /*#__PURE__*/React.createElement("strong", null, done.phone), " to arrange the prepaid payment (plus shipping). Thank you!"), /*#__PURE__*/React.createElement("button", {
+      className: "cta",
+      style: styles.cta,
+      onClick: () => {
+        setDone(null);
+        setView("browse");
+      }
+    }, "Shop more →")));
   }
-
-  return (
-    <main style={styles.main}>
-      {/* floating cart button */}
-      {cart.length > 0 && view !== "cart" && (
-        <button className="cta" style={styles.cartFab} onClick={() => setView("cart")}>
-          🛒 View cart ({cartCount}) · ₹{cartTotal.toFixed(0)}
-        </button>
-      )}
-
-      {view === "browse" && (
-        <>
-          <section style={styles.hero}>
-            <h1 style={styles.heroTitle}>Handmade <span className="wiggle" style={{ color: NEON.pink }}>loom band</span> treasures</h1>
-            <p style={styles.heroSub}>Pick a style, choose your rainbow, and I’ll make it just for you! 🌈</p>
-          </section>
-          <div style={styles.grid}>
-            {products.length === 0 && <div style={styles.empty}>No products yet — check back soon! 🌈</div>}
-            {products.map((p, i) => (
-              <div key={p.id} className="card pop" style={{ ...styles.card, animationDelay: `${i * 0.1}s` }}>
-                {p.image
-                  ? <img src={p.image} alt={p.sku} style={styles.cardImg} />
-                  : <div style={{ ...styles.cardImg, ...styles.cardImgBlank, background: bandGradient(i) }}><span style={{ fontSize: 13, color: "#fff", fontFamily: "Pacifico", textShadow: "0 1px 4px rgba(0,0,0,.25)" }}>📷 photo coming soon</span></div>}
-                <h3 style={styles.cardTitle}>{p.sku}</h3>
-                <p style={styles.cardDesc}>{p.desc}</p>
-                <div style={styles.priceRow}>
-                  <span style={styles.price}>₹{Number(p.price).toFixed(0)}</span>
-                  <button className="cta" style={styles.cta} onClick={() => startCustomise(p)}>Make mine →</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {view === "customise" && selected && (
-        <div className="pop" style={styles.builder}>
-          <button style={styles.back} onClick={() => { setSelected(null); setView("browse"); }}>← back</button>
-          {selected.image && <img src={selected.image} alt={selected.sku} style={styles.builderImg} />}
-          <h2 style={styles.builderTitle}>Customise your <span style={{ color: NEON.pink }}>{selected.sku}</span></h2>
-          <p style={{ color: "#555", marginTop: -6 }}>{selected.desc}</p>
-
-          <div style={{ ...styles.formRow, marginTop: 6, alignItems: "center" }}>
-            <div style={{ width: 160 }}>
-              <h4 style={styles.label}>How many?</h4>
-              <div style={styles.stepper}>
-                <button style={styles.stepBtn} onClick={() => setQty(qty - 1)}>−</button>
-                <span style={{ fontFamily: "Pacifico", fontSize: 20, minWidth: 28, textAlign: "center" }}>{qty}</span>
-                <button style={styles.stepBtn} onClick={() => setQty(qty + 1)}>+</button>
-              </div>
-            </div>
-            {qty > 1 && <div style={{ fontSize: 13, color: "#777", flex: 1, minWidth: 180 }}>Pick colours for each piece separately below — they can all be different! 🌈</div>}
-          </div>
-
-          {/* one colour picker per piece */}
-          {units.map((unit, idx) => (
-            <div key={idx} style={styles.unitBox}>
-              <h4 style={{ ...styles.label, marginTop: 0 }}>
-                {qty > 1 ? `${selected.sku} #${idx + 1} — pick colours 🌈` : "Pick your colours 🌈"}
-              </h4>
-              <div style={styles.swatchWrap}>
-                {colors.map((c) => {
-                  const on = unit.find((x) => x.name === c.name);
-                  return <button key={c.id || c.name} onClick={() => toggleColor(idx, c)} className="swatch" title={c.name}
-                    style={{ ...styles.swatch, background: swatchBg(c), outline: on ? "4px solid #111" : "3px solid #fff", transform: on ? "scale(1.12)" : "scale(1)", boxShadow: swatchGlow(c) }}>{on ? "✓" : ""}</button>;
-                })}
-              </div>
-              <div style={{ fontSize: 13, color: "#777", marginTop: 6 }}>{unit.length ? "Chosen: " + unit.map((c) => c.name).join(", ") : "Tap the colours you want"}</div>
-            </div>
-          ))}
-
-          <div style={styles.orderBar}>
-            <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>₹{(selected.price * qty).toFixed(0)}</div>
-            <button className="cta" style={{ ...styles.ctaBig }} onClick={addToCart}>🛒 Add to cart</button>
-          </div>
-        </div>
-      )}
-
-      {view === "cart" && (
-        <div className="pop" style={styles.builder}>
-          <button style={styles.back} onClick={() => setView("browse")}>← keep shopping</button>
-          <h2 style={styles.builderTitle}>Your cart 🛒</h2>
-
-          {cart.length === 0 && <div style={styles.empty}>Your cart is empty 🌈</div>}
-
-          {cart.map((it, i) => (
-            <div key={i} style={styles.cartRow}>
-              <div style={{ flex: 1 }}>
-                <strong style={{ fontFamily: "Pacifico", fontSize: 17 }}>{it.qty}× {it.product}</strong>
-                {it.units.map((u, j) => (
-                  <div key={j} style={{ fontSize: 13, color: "#777" }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{u.join(", ")}</div>
-                ))}
-              </div>
-              <div style={{ fontFamily: "Pacifico", fontSize: 17, color: NEON.pink, marginRight: 12 }}>₹{(it.price * it.qty).toFixed(0)}</div>
-              <button style={styles.del} onClick={() => removeFromCart(i)}>remove</button>
-            </div>
-          ))}
-
-          {cart.length > 0 && (
-            <>
-              <div style={{ textAlign: "right", fontFamily: "Pacifico", fontSize: 22, margin: "14px 0" }}>
-                Total: <span style={{ color: NEON.pink }}>₹{cartTotal.toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span>
-              </div>
-
-              <h3 style={{ ...styles.builderTitle, fontSize: 22 }}>Your details</h3>
-              <div style={styles.formRow}>
-                <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Your name</h4><input style={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mia Sharma" /></div>
-                <div style={{ flex: 1, minWidth: 180 }}><h4 style={styles.label}>Phone number</h4><input style={styles.input} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 98765 43210" /></div>
-              </div>
-              <h4 style={styles.label}>Email id</h4>
-              <input style={styles.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. mia@email.com" />
-              <h4 style={styles.label}>Delivery address</h4>
-              <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Flat / house, street, area, city, pincode" />
-              <h4 style={styles.label}>Any special wishes? (optional)</h4>
-              <textarea style={{ ...styles.input, height: 70, resize: "none" }} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. make it extra sparkly!" />
-
-              <div style={styles.terms}>
-                <h4 style={{ ...styles.label, margin: "0 0 8px" }}>📜 Terms &amp; Conditions</h4>
-                <ul style={styles.termsList}>
-                  <li>No Cash on Delivery (COD). All orders are <strong>prepaid</strong>.</li>
-                  <li>Shipping charges are <strong>extra</strong> and added to your order.</li>
-                  <li>Once your order is placed, someone will connect with you for the payment.</li>
-                </ul>
-                <label style={styles.agreeRow}><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} style={{ width: 18, height: 18 }} /><span>I have read and accept the terms &amp; conditions.</span></label>
-              </div>
-
-              <div style={styles.orderBar}>
-                <div style={{ fontFamily: "Pacifico", fontSize: 22 }}>Total: <span style={{ color: NEON.pink }}>₹{cartTotal.toFixed(0)}</span> <span style={{ fontSize: 13, color: "#888", fontFamily: "'Comic Neue', cursive" }}>+ shipping</span></div>
-                <button className="cta" disabled={busy} style={{ ...styles.cta, fontSize: 18, padding: "14px 28px", opacity: busy ? 0.6 : 1 }} onClick={placeOrder}>{busy ? <span><span className="spin">🌀</span> Sending…</span> : "Place order 🎉"}</button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </main>
-  );
+  return /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, cart.length > 0 && view !== "cart" && /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    style: styles.cartFab,
+    onClick: () => setView("cart")
+  }, "🛒 View cart (", cartCount, ") · ₹", cartTotal.toFixed(0)), view === "browse" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("section", {
+    style: styles.hero
+  }, /*#__PURE__*/React.createElement("h1", {
+    style: styles.heroTitle
+  }, "Handmade ", /*#__PURE__*/React.createElement("span", {
+    className: "wiggle",
+    style: {
+      color: NEON.pink
+    }
+  }, "loom band"), " treasures"), /*#__PURE__*/React.createElement("p", {
+    style: styles.heroSub
+  }, "Pick a style, choose your rainbow, and I’ll make it just for you! 🌈")), /*#__PURE__*/React.createElement("div", {
+    style: styles.grid
+  }, products.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: styles.empty
+  }, "No products yet — check back soon! 🌈"), products.map((p, i) => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    className: "card pop",
+    style: {
+      ...styles.card,
+      animationDelay: `${i * 0.1}s`
+    }
+  }, p.image ? /*#__PURE__*/React.createElement("img", {
+    src: p.image,
+    alt: p.sku,
+    style: styles.cardImg
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...styles.cardImg,
+      ...styles.cardImgBlank,
+      background: bandGradient(i)
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#fff",
+      fontFamily: "Pacifico",
+      textShadow: "0 1px 4px rgba(0,0,0,.25)"
+    }
+  }, "📷 photo coming soon")), /*#__PURE__*/React.createElement("h3", {
+    style: styles.cardTitle
+  }, p.sku), /*#__PURE__*/React.createElement("p", {
+    style: styles.cardDesc
+  }, p.desc), /*#__PURE__*/React.createElement("div", {
+    style: styles.priceRow
+  }, /*#__PURE__*/React.createElement("span", {
+    style: styles.price
+  }, "₹", Number(p.price).toFixed(0)), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    style: styles.cta,
+    onClick: () => startCustomise(p)
+  }, "Make mine →")))))), view === "customise" && selected && /*#__PURE__*/React.createElement("div", {
+    className: "pop",
+    style: styles.builder
+  }, /*#__PURE__*/React.createElement("button", {
+    style: styles.back,
+    onClick: () => {
+      setSelected(null);
+      setView("browse");
+    }
+  }, "← back"), selected.image && /*#__PURE__*/React.createElement("img", {
+    src: selected.image,
+    alt: selected.sku,
+    style: styles.builderImg
+  }), /*#__PURE__*/React.createElement("h2", {
+    style: styles.builderTitle
+  }, "Customise your ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: NEON.pink
+    }
+  }, selected.sku)), /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "#555",
+      marginTop: -6
+    }
+  }, selected.desc), /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...styles.formRow,
+      marginTop: 6,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 160
+    }
+  }, /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "How many?"), /*#__PURE__*/React.createElement("div", {
+    style: styles.stepper
+  }, /*#__PURE__*/React.createElement("button", {
+    style: styles.stepBtn,
+    onClick: () => setQty(qty - 1)
+  }, "−"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 20,
+      minWidth: 28,
+      textAlign: "center"
+    }
+  }, qty), /*#__PURE__*/React.createElement("button", {
+    style: styles.stepBtn,
+    onClick: () => setQty(qty + 1)
+  }, "+"))), qty > 1 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#777",
+      flex: 1,
+      minWidth: 180
+    }
+  }, "Pick colours for each piece separately below — they can all be different! 🌈")), units.map((unit, idx) => /*#__PURE__*/React.createElement("div", {
+    key: idx,
+    style: styles.unitBox
+  }, /*#__PURE__*/React.createElement("h4", {
+    style: {
+      ...styles.label,
+      marginTop: 0
+    }
+  }, qty > 1 ? `${selected.sku} #${idx + 1} — pick colours 🌈` : "Pick your colours 🌈"), /*#__PURE__*/React.createElement("div", {
+    style: styles.swatchWrap
+  }, colors.map(c => {
+    const on = unit.find(x => x.name === c.name);
+    return /*#__PURE__*/React.createElement("button", {
+      key: c.id || c.name,
+      onClick: () => toggleColor(idx, c),
+      className: "swatch",
+      title: c.name,
+      style: {
+        ...styles.swatch,
+        background: swatchBg(c),
+        outline: on ? "4px solid #111" : "3px solid #fff",
+        transform: on ? "scale(1.12)" : "scale(1)",
+        boxShadow: swatchGlow(c)
+      }
+    }, on ? "✓" : "");
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#777",
+      marginTop: 6
+    }
+  }, unit.length ? "Chosen: " + unit.map(c => c.name).join(", ") : "Tap the colours you want"))), /*#__PURE__*/React.createElement("div", {
+    style: styles.orderBar
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 22
+    }
+  }, "₹", (selected.price * qty).toFixed(0)), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    style: {
+      ...styles.ctaBig
+    },
+    onClick: addToCart
+  }, "🛒 Add to cart"))), view === "cart" && /*#__PURE__*/React.createElement("div", {
+    className: "pop",
+    style: styles.builder
+  }, /*#__PURE__*/React.createElement("button", {
+    style: styles.back,
+    onClick: () => setView("browse")
+  }, "← keep shopping"), /*#__PURE__*/React.createElement("h2", {
+    style: styles.builderTitle
+  }, "Your cart 🛒"), cart.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: styles.empty
+  }, "Your cart is empty 🌈"), cart.map((it, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: styles.cartRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 17
+    }
+  }, it.qty, "× ", it.product), it.units.map((u, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    style: {
+      fontSize: 13,
+      color: "#777"
+    }
+  }, it.qty > 1 ? `#${j + 1}: ` : "", u.join(", ")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 17,
+      color: NEON.pink,
+      marginRight: 12
+    }
+  }, "₹", (it.price * it.qty).toFixed(0)), /*#__PURE__*/React.createElement("button", {
+    style: styles.del,
+    onClick: () => removeFromCart(i)
+  }, "remove"))), cart.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right",
+      fontFamily: "Pacifico",
+      fontSize: 22,
+      margin: "14px 0"
+    }
+  }, "Total: ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: NEON.pink
+    }
+  }, "₹", cartTotal.toFixed(0)), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#888",
+      fontFamily: "'Comic Neue', cursive"
+    }
+  }, "+ shipping")), /*#__PURE__*/React.createElement("h3", {
+    style: {
+      ...styles.builderTitle,
+      fontSize: 22
+    }
+  }, "Your details"), /*#__PURE__*/React.createElement("div", {
+    style: styles.formRow
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 180
+    }
+  }, /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "Your name"), /*#__PURE__*/React.createElement("input", {
+    style: styles.input,
+    value: name,
+    onChange: e => setName(e.target.value),
+    placeholder: "e.g. Mia Sharma"
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 180
+    }
+  }, /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "Phone number"), /*#__PURE__*/React.createElement("input", {
+    style: styles.input,
+    type: "tel",
+    value: phone,
+    onChange: e => setPhone(e.target.value),
+    placeholder: "e.g. 98765 43210"
+  }))), /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "Email id"), /*#__PURE__*/React.createElement("input", {
+    style: styles.input,
+    type: "email",
+    value: email,
+    onChange: e => setEmail(e.target.value),
+    placeholder: "e.g. mia@email.com"
+  }), /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "Delivery address"), /*#__PURE__*/React.createElement("textarea", {
+    style: {
+      ...styles.input,
+      height: 70,
+      resize: "none"
+    },
+    value: address,
+    onChange: e => setAddress(e.target.value),
+    placeholder: "Flat / house, street, area, city, pincode"
+  }), /*#__PURE__*/React.createElement("h4", {
+    style: styles.label
+  }, "Any special wishes? (optional)"), /*#__PURE__*/React.createElement("textarea", {
+    style: {
+      ...styles.input,
+      height: 70,
+      resize: "none"
+    },
+    value: note,
+    onChange: e => setNote(e.target.value),
+    placeholder: "e.g. make it extra sparkly!"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: styles.terms
+  }, /*#__PURE__*/React.createElement("h4", {
+    style: {
+      ...styles.label,
+      margin: "0 0 8px"
+    }
+  }, "📜 Terms & Conditions"), /*#__PURE__*/React.createElement("ul", {
+    style: styles.termsList
+  }, /*#__PURE__*/React.createElement("li", null, "No Cash on Delivery (COD). All orders are ", /*#__PURE__*/React.createElement("strong", null, "prepaid"), "."), /*#__PURE__*/React.createElement("li", null, "Shipping charges are ", /*#__PURE__*/React.createElement("strong", null, "extra"), " and added to your order."), /*#__PURE__*/React.createElement("li", null, "Once your order is placed, someone will connect with you for the payment.")), /*#__PURE__*/React.createElement("label", {
+    style: styles.agreeRow
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: agree,
+    onChange: e => setAgree(e.target.checked),
+    style: {
+      width: 18,
+      height: 18
+    }
+  }), /*#__PURE__*/React.createElement("span", null, "I have read and accept the terms & conditions."))), /*#__PURE__*/React.createElement("div", {
+    style: styles.orderBar
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 22
+    }
+  }, "Total: ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: NEON.pink
+    }
+  }, "₹", cartTotal.toFixed(0)), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: "#888",
+      fontFamily: "'Comic Neue', cursive"
+    }
+  }, "+ shipping")), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    disabled: busy,
+    style: {
+      ...styles.cta,
+      fontSize: 18,
+      padding: "14px 28px",
+      opacity: busy ? 0.6 : 1
+    },
+    onClick: placeOrder
+  }, busy ? /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "spin"
+  }, "🌀"), " Sending…") : "Place order 🎉")))));
 }
 
 /* ===================== ADMIN ===================== */
-function Admin({ products, colors }) {
+function Admin({
+  products,
+  colors
+}) {
   const fb = window.fb;
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -478,9 +883,11 @@ function Admin({ products, colors }) {
   const [pw, setPw] = useState("");
   const [tab, setTab] = useState("orders");
   const [orders, setOrders] = useState([]);
-
   useEffect(() => {
-    const unsub = fb.onAuthStateChanged(fb.auth, (u) => { setUser(u); setChecking(false); });
+    const unsub = fb.onAuthStateChanged(fb.auth, u => {
+      setUser(u);
+      setChecking(false);
+    });
     return () => unsub();
   }, []);
 
@@ -488,111 +895,255 @@ function Admin({ products, colors }) {
   useEffect(() => {
     if (!user) return;
     const q = fb.query(fb.collection(fb.db, "orders"), fb.orderBy("time", "desc"));
-    const unsub = fb.onSnapshot(q, (snap) => setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+    const unsub = fb.onSnapshot(q, snap => setOrders(snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }))));
     return () => unsub();
   }, [user]);
-
   const login = async () => {
-    try { await fb.signInWithEmailAndPassword(fb.auth, email.trim(), pw); }
-    catch (e) { alert("Login failed. Check the email and password."); }
+    try {
+      await fb.signInWithEmailAndPassword(fb.auth, email.trim(), pw);
+    } catch (e) {
+      alert("Login failed. Check the email and password.");
+    }
   };
-
-  if (checking) return <main style={styles.main}><div style={{ textAlign: "center", padding: 60, fontFamily: "Pacifico" }}><span className="spin">🌀</span></div></main>;
-
+  if (checking) return /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "center",
+      padding: 60,
+      fontFamily: "Pacifico"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "spin"
+  }, "🌀")));
   if (!user) {
-    return (
-      <main style={styles.main}>
-        <div className="pop" style={styles.login}>
-          <div style={{ fontSize: 44 }}>🔐</div>
-          <h2 style={{ fontFamily: "Pacifico", margin: "8px 0" }}>Owner login</h2>
-          <p style={{ color: "#777", fontSize: 14 }}>Only the shop owner can come in here.</p>
-          <input style={styles.input} type="email" value={email} placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-          <input style={{ ...styles.input, marginTop: 10 }} type="password" value={pw} placeholder="Password" onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => e.key === "Enter" && login()} />
-          <button className="cta" style={{ ...styles.cta, marginTop: 12 }} onClick={login}>Enter shop</button>
-        </div>
-      </main>
-    );
+    return /*#__PURE__*/React.createElement("main", {
+      style: styles.main
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "pop",
+      style: styles.login
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 44
+      }
+    }, "🔐"), /*#__PURE__*/React.createElement("h2", {
+      style: {
+        fontFamily: "Pacifico",
+        margin: "8px 0"
+      }
+    }, "Owner login"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: "#777",
+        fontSize: 14
+      }
+    }, "Only the shop owner can come in here."), /*#__PURE__*/React.createElement("input", {
+      style: styles.input,
+      type: "email",
+      value: email,
+      placeholder: "Email",
+      onChange: e => setEmail(e.target.value)
+    }), /*#__PURE__*/React.createElement("input", {
+      style: {
+        ...styles.input,
+        marginTop: 10
+      },
+      type: "password",
+      value: pw,
+      placeholder: "Password",
+      onChange: e => setPw(e.target.value),
+      onKeyDown: e => e.key === "Enter" && login()
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "cta",
+      style: {
+        ...styles.cta,
+        marginTop: 12
+      },
+      onClick: login
+    }, "Enter shop")));
   }
-
-  const newCount = orders.filter((o) => o.status === "New").length;
-  return (
-    <main style={styles.main}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
-        <div style={styles.adminTabs}>
-          {[["orders", `📬 Orders${newCount ? ` (${newCount})` : ""}`], ["products", "🏷️ Products"], ["colors", "🎨 Colours"]].map(([k, label]) => (
-            <button key={k} className="navbtn" onClick={() => setTab(k)} style={{ ...styles.tab, ...(tab === k ? styles.tabActive : {}) }}>{label}</button>
-          ))}
-        </div>
-        <button className="navbtn" style={{ ...styles.tab, background: "#ffe5ee", color: "#d6005c" }} onClick={() => fb.signOut(fb.auth)}>Log out</button>
-      </div>
-      {tab === "orders" && <OrdersPanel orders={orders} />}
-      {tab === "products" && <ProductsPanel products={products} />}
-      {tab === "colors" && <ColorsPanel colors={colors} />}
-    </main>
-  );
+  const newCount = orders.filter(o => o.status === "New").length;
+  return /*#__PURE__*/React.createElement("main", {
+    style: styles.main
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 16,
+      flexWrap: "wrap",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: styles.adminTabs
+  }, [["orders", `📬 Orders${newCount ? ` (${newCount})` : ""}`], ["products", "🏷️ Products"], ["colors", "🎨 Colours"]].map(([k, label]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    className: "navbtn",
+    onClick: () => setTab(k),
+    style: {
+      ...styles.tab,
+      ...(tab === k ? styles.tabActive : {})
+    }
+  }, label))), /*#__PURE__*/React.createElement("button", {
+    className: "navbtn",
+    style: {
+      ...styles.tab,
+      background: "#ffe5ee",
+      color: "#d6005c"
+    },
+    onClick: () => fb.signOut(fb.auth)
+  }, "Log out")), tab === "orders" && /*#__PURE__*/React.createElement(OrdersPanel, {
+    orders: orders
+  }), tab === "products" && /*#__PURE__*/React.createElement(ProductsPanel, {
+    products: products
+  }), tab === "colors" && /*#__PURE__*/React.createElement(ColorsPanel, {
+    colors: colors
+  }));
 }
-
-function OrdersPanel({ orders }) {
+function OrdersPanel({
+  orders
+}) {
   const fb = window.fb;
-  const setStatus = (id, status) => fb.updateDoc(fb.doc(fb.db, "orders", id), { status });
-  const remove = (id) => { if (confirm("Delete this order?")) fb.deleteDoc(fb.doc(fb.db, "orders", id)); };
-  const revenue = orders.filter((o) => o.status !== "New").reduce((s, o) => s + (o.total || 0), 0);
-  return (
-    <div>
-      <div style={styles.statRow}>
-        <Stat label="Total orders" value={orders.length} color={NEON.pink} />
-        <Stat label="New" value={orders.filter((o) => o.status === "New").length} color={NEON.blue} />
-        <Stat label="Earned" value={"₹" + revenue.toFixed(0)} color={NEON.green} />
-      </div>
-      {orders.length === 0 && <div style={styles.empty}>No orders yet — share your shop! 🌈</div>}
-      {orders.map((o) => (
-        <div key={o.id} className="card" style={styles.orderCard}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-              <strong style={{ fontFamily: "Pacifico", fontSize: 18 }}>{o.items ? `${o.itemCount || o.items.length} item${(o.itemCount || o.items.length) > 1 ? "s" : ""}` : `${o.qty}× ${o.product}`}</strong>
-              <span style={{ ...styles.badge, background: statusColor(o.status) }}>{o.status}</span>
-            </div>
-            {/* items: show each product, and each piece's colours when there are units */}
-            {o.items
-              ? <div style={{ margin: "4px 0" }}>{o.items.map((it, i) => (
-                  <div key={i} style={{ color: "#555", fontSize: 14, marginBottom: 4 }}>
-                    <strong>• {it.qty}× {it.product}</strong>
-                    {it.units
-                      ? it.units.map((u, j) => (
-                          <div key={j} style={{ color: "#888", fontSize: 13, marginLeft: 14 }}>{it.qty > 1 ? `#${j + 1}: ` : ""}{((u && u.colors) || u || []).join(", ")}</div>
-                        ))
-                      : <span style={{ color: "#888" }}> — {(it.colors || []).join(", ")}</span>}
-                  </div>
-                ))}</div>
-              : <div style={{ color: "#555", margin: "4px 0" }}>{(o.colors || []).join(", ")}</div>}
-            <div style={{ color: "#555", margin: "4px 0" }}>For <strong>{o.customer}</strong></div>
-            <div style={{ fontSize: 13, color: "#666" }}>📱 {o.phone || "—"} · 📧 {o.email || "—"}</div>
-            {o.address && <div style={{ fontSize: 13, color: "#666" }}>🏠 {o.address}</div>}
-            {o.note && <div style={{ fontSize: 13, color: "#888", fontStyle: "italic" }}>“{o.note}”</div>}
-            <div style={{ fontSize: 12, color: "#aaa", marginTop: 4 }}>{new Date(o.time).toLocaleString()} · ₹{(o.total || 0).toFixed(0)} + shipping</div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <select value={o.status} onChange={(e) => setStatus(o.id, e.target.value)} style={styles.select}><option>New</option><option>Making</option><option>Done</option><option>Delivered</option></select>
-            <button style={styles.del} onClick={() => remove(o.id)}>Delete</button>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const setStatus = (id, status) => fb.updateDoc(fb.doc(fb.db, "orders", id), {
+    status
+  });
+  const remove = id => {
+    if (confirm("Delete this order?")) fb.deleteDoc(fb.doc(fb.db, "orders", id));
+  };
+  const revenue = orders.filter(o => o.status !== "New").reduce((s, o) => s + (o.total || 0), 0);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: styles.statRow
+  }, /*#__PURE__*/React.createElement(Stat, {
+    label: "Total orders",
+    value: orders.length,
+    color: NEON.pink
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "New",
+    value: orders.filter(o => o.status === "New").length,
+    color: NEON.blue
+  }), /*#__PURE__*/React.createElement(Stat, {
+    label: "Earned",
+    value: "₹" + revenue.toFixed(0),
+    color: NEON.green
+  })), orders.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: styles.empty
+  }, "No orders yet — share your shop! 🌈"), orders.map(o => /*#__PURE__*/React.createElement("div", {
+    key: o.id,
+    className: "card",
+    style: styles.orderCard
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 18
+    }
+  }, o.items ? `${o.itemCount || o.items.length} item${(o.itemCount || o.items.length) > 1 ? "s" : ""}` : `${o.qty}× ${o.product}`), /*#__PURE__*/React.createElement("span", {
+    style: {
+      ...styles.badge,
+      background: statusColor(o.status)
+    }
+  }, o.status)), o.items ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      margin: "4px 0"
+    }
+  }, o.items.map((it, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      color: "#555",
+      fontSize: 14,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, "• ", it.qty, "× ", it.product), it.units ? it.units.map((u, j) => /*#__PURE__*/React.createElement("div", {
+    key: j,
+    style: {
+      color: "#888",
+      fontSize: 13,
+      marginLeft: 14
+    }
+  }, it.qty > 1 ? `#${j + 1}: ` : "", (u && u.colors || u || []).join(", "))) : /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#888"
+    }
+  }, " — ", (it.colors || []).join(", "))))) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#555",
+      margin: "4px 0"
+    }
+  }, (o.colors || []).join(", ")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: "#555",
+      margin: "4px 0"
+    }
+  }, "For ", /*#__PURE__*/React.createElement("strong", null, o.customer)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#666"
+    }
+  }, "📱 ", o.phone || "—", " · 📧 ", o.email || "—"), o.address && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#666"
+    }
+  }, "🏠 ", o.address), o.note && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#888",
+      fontStyle: "italic"
+    }
+  }, "“", o.note, "”"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#aaa",
+      marginTop: 4
+    }
+  }, new Date(o.time).toLocaleString(), " · ₹", (o.total || 0).toFixed(0), " + shipping")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("select", {
+    value: o.status,
+    onChange: e => setStatus(o.id, e.target.value),
+    style: styles.select
+  }, /*#__PURE__*/React.createElement("option", null, "New"), /*#__PURE__*/React.createElement("option", null, "Making"), /*#__PURE__*/React.createElement("option", null, "Done"), /*#__PURE__*/React.createElement("option", null, "Delivered")), /*#__PURE__*/React.createElement("button", {
+    style: styles.del,
+    onClick: () => remove(o.id)
+  }, "Delete")))));
 }
-
-function ProductsPanel({ products }) {
+function ProductsPanel({
+  products
+}) {
   const fb = window.fb;
-  const [sku, setSku] = useState(""); const [price, setPrice] = useState(""); const [desc, setDesc] = useState("");
-  const [file, setFile] = useState(null); const [preview, setPreview] = useState(""); const [busy, setBusy] = useState(false);
+  const [sku, setSku] = useState("");
+  const [price, setPrice] = useState("");
+  const [desc, setDesc] = useState("");
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [busy, setBusy] = useState(false);
 
   // Option B: shrink the photo and store it inside the product document (no Firebase Storage needed).
   // Firestore documents max out around 1MB, so we downscale to ~500px and compress.
-  const fileToSmallImage = (f) => new Promise((resolve, reject) => {
+  const fileToSmallImage = f => new Promise((resolve, reject) => {
     if (!f) return reject();
-    if (f.size > 10 * 1024 * 1024) { alert("Please pick a photo under 10MB 🙂"); return reject(); }
+    if (f.size > 10 * 1024 * 1024) {
+      alert("Please pick a photo under 10MB 🙂");
+      return reject();
+    }
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const im = new Image();
       im.onload = () => {
         const max = 500;
@@ -609,64 +1160,200 @@ function ProductsPanel({ products }) {
     reader.onerror = reject;
     reader.readAsDataURL(f);
   });
-
   const add = async () => {
     if (!sku.trim() || !price) return alert("Add a name and price 🙂");
     setBusy(true);
     try {
       let image = "";
       if (file) image = await fileToSmallImage(file);
-      await fb.addDoc(fb.collection(fb.db, "products"), { sku: sku.trim(), price: parseFloat(price), desc: desc.trim(), image });
-      setSku(""); setPrice(""); setDesc(""); setFile(null); setPreview("");
-    } catch (e) { alert("Couldn't add product — check connection or try a smaller photo."); }
+      await fb.addDoc(fb.collection(fb.db, "products"), {
+        sku: sku.trim(),
+        price: parseFloat(price),
+        desc: desc.trim(),
+        image
+      });
+      setSku("");
+      setPrice("");
+      setDesc("");
+      setFile(null);
+      setPreview("");
+    } catch (e) {
+      alert("Couldn't add product — check connection or try a smaller photo.");
+    }
     setBusy(false);
   };
-  const edit = (id, field, val) => fb.updateDoc(fb.doc(fb.db, "products", id), { [field]: field === "price" ? parseFloat(val) || 0 : val });
-  const remove = (id) => confirm("Remove this product?") && fb.deleteDoc(fb.doc(fb.db, "products", id));
+  const edit = (id, field, val) => fb.updateDoc(fb.doc(fb.db, "products", id), {
+    [field]: field === "price" ? parseFloat(val) || 0 : val
+  });
+  const remove = id => confirm("Remove this product?") && fb.deleteDoc(fb.doc(fb.db, "products", id));
   const changePhoto = async (id, f) => {
     if (!f) return;
-    try { const data = await fileToSmallImage(f); edit(id, "image", data); } catch (e) { alert("Couldn't save photo — try a smaller one."); }
+    try {
+      const data = await fileToSmallImage(f);
+      edit(id, "image", data);
+    } catch (e) {
+      alert("Couldn't save photo — try a smaller one.");
+    }
   };
-
-  return (
-    <div>
-      <div className="card" style={styles.addBox}>
-        <h3 style={styles.panelTitle}>➕ Add a new product</h3>
-        <div style={styles.formRow}>
-          <input style={styles.input} placeholder="Name (e.g. Bracelet)" value={sku} onChange={(e) => setSku(e.target.value)} />
-          <input style={{ ...styles.input, width: 110 }} placeholder="Price ₹" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-        </div>
-        <input style={styles.input} placeholder="Short description" value={desc} onChange={(e) => setDesc(e.target.value)} />
-        <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 10 }}>
-          {preview ? <img src={preview} alt="preview" style={styles.thumb} /> : <div style={{ ...styles.thumb, ...styles.thumbBlank }}>📷</div>}
-          <label className="cta" style={{ ...styles.cta, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>Choose photo<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { const f = e.target.files[0]; setFile(f); if (f) { const r = new FileReader(); r.onload = (ev) => setPreview(ev.target.result); r.readAsDataURL(f); } }} /></label>
-          {preview && <button style={styles.del} onClick={() => { setFile(null); setPreview(""); }}>clear</button>}
-        </div>
-        <button className="cta" disabled={busy} style={{ ...styles.cta, marginTop: 12, opacity: busy ? 0.6 : 1 }} onClick={add}>{busy ? "Saving…" : "Add product"}</button>
-      </div>
-
-      {products.map((p) => (
-        <div key={p.id} className="card" style={styles.orderCard}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-            {p.image ? <img src={p.image} alt={p.sku} style={styles.thumb} /> : <div style={{ ...styles.thumb, ...styles.thumbBlank }}>📷</div>}
-            <label className="cta" style={{ ...styles.cta, padding: "6px 12px", fontSize: 12, background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" }}>{p.image ? "Change" : "Upload"}<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => changePhoto(p.id, e.target.files[0])} /></label>
-          </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-            <input style={styles.inlineInput} defaultValue={p.sku} onBlur={(e) => edit(p.id, "sku", e.target.value)} />
-            <input style={styles.inlineInput} defaultValue={p.desc} onBlur={(e) => edit(p.id, "desc", e.target.value)} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
-            <div>₹<input style={{ ...styles.inlineInput, width: 70 }} type="number" defaultValue={p.price} onBlur={(e) => edit(p.id, "price", e.target.value)} /></div>
-            <button style={styles.del} onClick={() => remove(p.id)}>Delete</button>
-          </div>
-        </div>
-      ))}
-      <p style={{ fontSize: 12, color: "#778", textAlign: "center" }}>Tip: edits to name / description / price save when you click away from the box.</p>
-    </div>
-  );
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: styles.addBox
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: styles.panelTitle
+  }, "➕ Add a new product"), /*#__PURE__*/React.createElement("div", {
+    style: styles.formRow
+  }, /*#__PURE__*/React.createElement("input", {
+    style: styles.input,
+    placeholder: "Name (e.g. Bracelet)",
+    value: sku,
+    onChange: e => setSku(e.target.value)
+  }), /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...styles.input,
+      width: 110
+    },
+    placeholder: "Price ₹",
+    type: "number",
+    value: price,
+    onChange: e => setPrice(e.target.value)
+  })), /*#__PURE__*/React.createElement("input", {
+    style: styles.input,
+    placeholder: "Short description",
+    value: desc,
+    onChange: e => setDesc(e.target.value)
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 12,
+      alignItems: "center",
+      marginTop: 10
+    }
+  }, preview ? /*#__PURE__*/React.createElement("img", {
+    src: preview,
+    alt: "preview",
+    style: styles.thumb
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...styles.thumb,
+      ...styles.thumbBlank
+    }
+  }, "📷"), /*#__PURE__*/React.createElement("label", {
+    className: "cta",
+    style: {
+      ...styles.cta,
+      background: "linear-gradient(90deg,#00e5ff,#39ff14)",
+      color: "#063"
+    }
+  }, "Choose photo", /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: "image/*",
+    style: {
+      display: "none"
+    },
+    onChange: e => {
+      const f = e.target.files[0];
+      setFile(f);
+      if (f) {
+        const r = new FileReader();
+        r.onload = ev => setPreview(ev.target.result);
+        r.readAsDataURL(f);
+      }
+    }
+  })), preview && /*#__PURE__*/React.createElement("button", {
+    style: styles.del,
+    onClick: () => {
+      setFile(null);
+      setPreview("");
+    }
+  }, "clear")), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    disabled: busy,
+    style: {
+      ...styles.cta,
+      marginTop: 12,
+      opacity: busy ? 0.6 : 1
+    },
+    onClick: add
+  }, busy ? "Saving…" : "Add product")), products.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    className: "card",
+    style: styles.orderCard
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 6,
+      alignItems: "center"
+    }
+  }, p.image ? /*#__PURE__*/React.createElement("img", {
+    src: p.image,
+    alt: p.sku,
+    style: styles.thumb
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...styles.thumb,
+      ...styles.thumbBlank
+    }
+  }, "📷"), /*#__PURE__*/React.createElement("label", {
+    className: "cta",
+    style: {
+      ...styles.cta,
+      padding: "6px 12px",
+      fontSize: 12,
+      background: "linear-gradient(90deg,#00e5ff,#39ff14)",
+      color: "#063"
+    }
+  }, p.image ? "Change" : "Upload", /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: "image/*",
+    style: {
+      display: "none"
+    },
+    onChange: e => changePhoto(p.id, e.target.files[0])
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    style: styles.inlineInput,
+    defaultValue: p.sku,
+    onBlur: e => edit(p.id, "sku", e.target.value)
+  }), /*#__PURE__*/React.createElement("input", {
+    style: styles.inlineInput,
+    defaultValue: p.desc,
+    onBlur: e => edit(p.id, "desc", e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 6,
+      alignItems: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, "₹", /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...styles.inlineInput,
+      width: 70
+    },
+    type: "number",
+    defaultValue: p.price,
+    onBlur: e => edit(p.id, "price", e.target.value)
+  })), /*#__PURE__*/React.createElement("button", {
+    style: styles.del,
+    onClick: () => remove(p.id)
+  }, "Delete")))), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      color: "#778",
+      textAlign: "center"
+    }
+  }, "Tip: edits to name / description / price save when you click away from the box."));
 }
-
-function ColorsPanel({ colors }) {
+function ColorsPanel({
+  colors
+}) {
   const fb = window.fb;
   const [mode, setMode] = useState("single"); // single | dual
   const [name, setName] = useState("");
@@ -676,196 +1363,794 @@ function ColorsPanel({ colors }) {
 
   // Starter colours matching the band box: singles + the 7 dual-tones.
   const STARTER = [
-    // singles
-    { name: "Neon Green", hex: "#aaff00" },
-    { name: "Hot Pink", hex: "#ff2e9a" },
-    { name: "Teal", hex: "#00b3a4" },
-    { name: "Purple", hex: "#9b4dff" },
-    { name: "Lilac", hex: "#c9a3ff" },
-    { name: "Magenta", hex: "#ff1f8f" },
-    { name: "Coral Pink", hex: "#ff6f7d" },
-    { name: "Yellow", hex: "#ffe400" },
-    { name: "Red", hex: "#ff2d2d" },
-    { name: "Orange", hex: "#ff8a1e" },
-    { name: "White", hex: "#ffffff" },
-    { name: "Lime", hex: "#7dff3a" },
-    { name: "Royal Blue", hex: "#2f6bff" },
-    { name: "Sky Blue", hex: "#7ec8ff" },
-    { name: "Aqua", hex: "#3ad6c5" },
-    { name: "Sunshine", hex: "#fff200" },
-    // dual tones (as you listed)
-    { name: "Pink & Green", hex: "#ff2e9a", hex2: "#39ff14" },
-    { name: "Purple & Blue", hex: "#9b4dff", hex2: "#2f6bff" },
-    { name: "White & Red", hex: "#ffffff", hex2: "#ff2d2d" },
-    { name: "Green & Blue", hex: "#39ff14", hex2: "#00b3ff" },
-    { name: "Pink & Yellow", hex: "#ff2e9a", hex2: "#ffe400" },
-    { name: "Purple & White", hex: "#9b4dff", hex2: "#ffffff" },
-    { name: "Pink & White", hex: "#ff2e9a", hex2: "#ffffff" },
-  ];
+  // singles
+  {
+    name: "Neon Green",
+    hex: "#aaff00"
+  }, {
+    name: "Hot Pink",
+    hex: "#ff2e9a"
+  }, {
+    name: "Teal",
+    hex: "#00b3a4"
+  }, {
+    name: "Purple",
+    hex: "#9b4dff"
+  }, {
+    name: "Lilac",
+    hex: "#c9a3ff"
+  }, {
+    name: "Magenta",
+    hex: "#ff1f8f"
+  }, {
+    name: "Coral Pink",
+    hex: "#ff6f7d"
+  }, {
+    name: "Yellow",
+    hex: "#ffe400"
+  }, {
+    name: "Red",
+    hex: "#ff2d2d"
+  }, {
+    name: "Orange",
+    hex: "#ff8a1e"
+  }, {
+    name: "White",
+    hex: "#ffffff"
+  }, {
+    name: "Lime",
+    hex: "#7dff3a"
+  }, {
+    name: "Royal Blue",
+    hex: "#2f6bff"
+  }, {
+    name: "Sky Blue",
+    hex: "#7ec8ff"
+  }, {
+    name: "Aqua",
+    hex: "#3ad6c5"
+  }, {
+    name: "Sunshine",
+    hex: "#fff200"
+  },
+  // dual tones (as you listed)
+  {
+    name: "Pink & Green",
+    hex: "#ff2e9a",
+    hex2: "#39ff14"
+  }, {
+    name: "Purple & Blue",
+    hex: "#9b4dff",
+    hex2: "#2f6bff"
+  }, {
+    name: "White & Red",
+    hex: "#ffffff",
+    hex2: "#ff2d2d"
+  }, {
+    name: "Green & Blue",
+    hex: "#39ff14",
+    hex2: "#00b3ff"
+  }, {
+    name: "Pink & Yellow",
+    hex: "#ff2e9a",
+    hex2: "#ffe400"
+  }, {
+    name: "Purple & White",
+    hex: "#9b4dff",
+    hex2: "#ffffff"
+  }, {
+    name: "Pink & White",
+    hex: "#ff2e9a",
+    hex2: "#ffffff"
+  }];
   const loadStarter = async () => {
     if (!confirm("Add all the starter colours from the band box? You can edit or remove any afterwards.")) return;
     setLoading(true);
-    try { for (const c of STARTER) await fb.addDoc(fb.collection(fb.db, "colors"), c); }
-    catch (e) { alert("Some colours couldn't be added — check connection."); }
+    try {
+      for (const c of STARTER) await fb.addDoc(fb.collection(fb.db, "colors"), c);
+    } catch (e) {
+      alert("Some colours couldn't be added — check connection.");
+    }
     setLoading(false);
   };
-
   const add = () => {
     if (!name.trim()) return alert("Give the colour a name 🙂");
-    const data = mode === "dual" ? { name: name.trim(), hex, hex2 } : { name: name.trim(), hex };
+    const data = mode === "dual" ? {
+      name: name.trim(),
+      hex,
+      hex2
+    } : {
+      name: name.trim(),
+      hex
+    };
     fb.addDoc(fb.collection(fb.db, "colors"), data);
-    setName(""); setHex("#ff2e9a"); setHex2("#39ff14");
+    setName("");
+    setHex("#ff2e9a");
+    setHex2("#39ff14");
   };
-  const remove = (id) => fb.deleteDoc(fb.doc(fb.db, "colors", id));
-
-  const preview = { hex, hex2: mode === "dual" ? hex2 : undefined };
-
-  return (
-    <div>
-      {colors.length === 0 && (
-        <div className="card" style={{ ...styles.addBox, textAlign: "center", background: "#fff7fb" }}>
-          <p style={{ margin: "0 0 12px", color: "#555" }}>Your colour shelf is empty. Load all the colours from the band box in one tap 🌈</p>
-          <button className="cta" disabled={loading} style={{ ...styles.cta, opacity: loading ? 0.6 : 1 }} onClick={loadStarter}>{loading ? "Adding…" : "✨ Load starter colours"}</button>
-        </div>
-      )}
-
-      <div className="card" style={styles.addBox}>
-        <h3 style={styles.panelTitle}>🎨 Add a new colour</h3>
-
-        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-          <button className="navbtn" onClick={() => setMode("single")}
-            style={{ ...styles.tab, ...(mode === "single" ? styles.tabActive : {}) }}>● Single tone</button>
-          <button className="navbtn" onClick={() => setMode("dual")}
-            style={{ ...styles.tab, ...(mode === "dual" ? styles.tabActive : {}) }}>◑ Dual tone</button>
-        </div>
-
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-          <div className="swatch" style={{ ...styles.swatch, background: swatchBg(preview), boxShadow: swatchGlow(preview), cursor: "default" }} />
-          <div>
-            <div style={{ fontSize: 12, color: "#777" }}>{mode === "dual" ? "First colour" : "Colour"}</div>
-            <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} style={styles.colorPick} />
-          </div>
-          {mode === "dual" && (
-            <div>
-              <div style={{ fontSize: 12, color: "#777" }}>Second colour</div>
-              <input type="color" value={hex2} onChange={(e) => setHex2(e.target.value)} style={styles.colorPick} />
-            </div>
-          )}
-          <input style={{ ...styles.input, flex: 1, minWidth: 160 }} placeholder={mode === "dual" ? "Name (e.g. Pink & Green)" : "Name (e.g. Neon Pink)"} value={name} onChange={(e) => setName(e.target.value)} />
-          <button className="cta" style={styles.cta} onClick={add}>Add</button>
-        </div>
-      </div>
-
-      <div style={styles.swatchWrap}>
-        {colors.map((c) => (
-          <div key={c.id} style={{ textAlign: "center" }}>
-            <button className="swatch" style={{ ...styles.swatch, background: swatchBg(c), boxShadow: swatchGlow(c), cursor: "default" }} />
-            <div style={{ fontSize: 12, marginTop: 4 }}>{c.name}{c.hex2 ? " ◑" : ""}</div>
-            <button style={{ ...styles.del, marginTop: 4, fontSize: 11 }} onClick={() => remove(c.id)}>remove</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  const remove = id => fb.deleteDoc(fb.doc(fb.db, "colors", id));
+  const preview = {
+    hex,
+    hex2: mode === "dual" ? hex2 : undefined
+  };
+  return /*#__PURE__*/React.createElement("div", null, colors.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      ...styles.addBox,
+      textAlign: "center",
+      background: "#fff7fb"
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      margin: "0 0 12px",
+      color: "#555"
+    }
+  }, "Your colour shelf is empty. Load all the colours from the band box in one tap 🌈"), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    disabled: loading,
+    style: {
+      ...styles.cta,
+      opacity: loading ? 0.6 : 1
+    },
+    onClick: loadStarter
+  }, loading ? "Adding…" : "✨ Load starter colours")), /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: styles.addBox
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: styles.panelTitle
+  }, "🎨 Add a new colour"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "navbtn",
+    onClick: () => setMode("single"),
+    style: {
+      ...styles.tab,
+      ...(mode === "single" ? styles.tabActive : {})
+    }
+  }, "● Single tone"), /*#__PURE__*/React.createElement("button", {
+    className: "navbtn",
+    onClick: () => setMode("dual"),
+    style: {
+      ...styles.tab,
+      ...(mode === "dual" ? styles.tabActive : {})
+    }
+  }, "◑ Dual tone")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 12,
+      alignItems: "center",
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "swatch",
+    style: {
+      ...styles.swatch,
+      background: swatchBg(preview),
+      boxShadow: swatchGlow(preview),
+      cursor: "default"
+    }
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#777"
+    }
+  }, mode === "dual" ? "First colour" : "Colour"), /*#__PURE__*/React.createElement("input", {
+    type: "color",
+    value: hex,
+    onChange: e => setHex(e.target.value),
+    style: styles.colorPick
+  })), mode === "dual" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#777"
+    }
+  }, "Second colour"), /*#__PURE__*/React.createElement("input", {
+    type: "color",
+    value: hex2,
+    onChange: e => setHex2(e.target.value),
+    style: styles.colorPick
+  })), /*#__PURE__*/React.createElement("input", {
+    style: {
+      ...styles.input,
+      flex: 1,
+      minWidth: 160
+    },
+    placeholder: mode === "dual" ? "Name (e.g. Pink & Green)" : "Name (e.g. Neon Pink)",
+    value: name,
+    onChange: e => setName(e.target.value)
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "cta",
+    style: styles.cta,
+    onClick: add
+  }, "Add"))), /*#__PURE__*/React.createElement("div", {
+    style: styles.swatchWrap
+  }, colors.map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.id,
+    style: {
+      textAlign: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "swatch",
+    style: {
+      ...styles.swatch,
+      background: swatchBg(c),
+      boxShadow: swatchGlow(c),
+      cursor: "default"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      marginTop: 4
+    }
+  }, c.name, c.hex2 ? " ◑" : ""), /*#__PURE__*/React.createElement("button", {
+    style: {
+      ...styles.del,
+      marginTop: 4,
+      fontSize: 11
+    },
+    onClick: () => remove(c.id)
+  }, "remove")))));
 }
-
-function Stat({ label, value, color }) {
-  return <div className="card" style={{ ...styles.stat, borderTop: `5px solid ${color}` }}><div style={{ fontFamily: "Pacifico", fontSize: 30, color }}>{value}</div><div style={{ fontSize: 13, color: "#777" }}>{label}</div></div>;
+function Stat({
+  label,
+  value,
+  color
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      ...styles.stat,
+      borderTop: `5px solid ${color}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "Pacifico",
+      fontSize: 30,
+      color
+    }
+  }, value), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: "#777"
+    }
+  }, label));
 }
-const bandGradient = (i) => ["linear-gradient(135deg,#ff2e9a,#fff200)", "linear-gradient(135deg,#00e5ff,#b026ff)", "linear-gradient(135deg,#39ff14,#ff7a00)"][i % 3];
-const statusColor = (s) => ({ New: NEON.blue, Making: NEON.orange, Done: NEON.green, Delivered: "#999" }[s] || "#999");
+const bandGradient = i => ["linear-gradient(135deg,#ff2e9a,#fff200)", "linear-gradient(135deg,#00e5ff,#b026ff)", "linear-gradient(135deg,#39ff14,#ff7a00)"][i % 3];
+const statusColor = s => ({
+  New: NEON.blue,
+  Making: NEON.orange,
+  Done: NEON.green,
+  Delivered: "#999"
+})[s] || "#999";
 // background for a colour swatch: solid for single, hard diagonal split for dual-tone
-const swatchBg = (c) => c.hex2 ? `linear-gradient(135deg, ${c.hex} 0 50%, ${c.hex2} 50% 100%)` : c.hex;
-const swatchGlow = (c) => c.hex2 ? `0 0 14px ${c.hex}99, 0 0 14px ${c.hex2}99` : `0 0 14px ${c.hex}`;
-
+const swatchBg = c => c.hex2 ? `linear-gradient(135deg, ${c.hex} 0 50%, ${c.hex2} 50% 100%)` : c.hex;
+const swatchGlow = c => c.hex2 ? `0 0 14px ${c.hex}99, 0 0 14px ${c.hex2}99` : `0 0 14px ${c.hex}`;
 const styles = {
-  root: { minHeight: "100vh", fontFamily: "'Comic Neue', cursive", background: "radial-gradient(circle at 50% 0%, #d6fbff, #b3f0ff 45%, #8fe6ff 100%)", position: "relative", overflow: "hidden", color: "#2b2b3a" },
-  blobs: { position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" },
-  header: { position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 28px", background: "rgba(20,16,48,.92)", backdropFilter: "blur(10px)", borderBottom: "3px solid #ff2e9a", boxShadow: "0 4px 20px rgba(0,0,0,.18)" },
-  navBtn: { border: "none", borderRadius: 999, padding: "10px 18px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, background: "#fff", color: "#555", boxShadow: "0 3px 10px rgba(0,0,0,.08)", transition: "transform .15s" },
-  navActive: { background: "linear-gradient(90deg,#ff2e9a,#b026ff)", color: "#fff" },
-  main: { position: "relative", zIndex: 2, maxWidth: 980, margin: "0 auto", padding: "28px 20px 60px" },
-  hero: { textAlign: "center", padding: "20px 0 30px" },
-  aboutCard: { maxWidth: 620, margin: "20px auto", background: "#fff", borderRadius: 28, padding: "36px 32px", boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
-  aboutTitle: { fontFamily: "Pacifico", fontSize: 36, textAlign: "center", margin: "10px 0 4px", background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#39ff14)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-  aboutLead: { fontFamily: "Pacifico", fontSize: 20, textAlign: "center", color: "#00b3a4", margin: "0 0 20px" },
-  aboutText: { fontSize: 17, lineHeight: 1.7, color: "#444", margin: "0 0 16px", textAlign: "center" },
-  aboutSign: { fontFamily: "Pacifico", fontSize: 22, color: "#ff2e9a" },
-  heroTitle: { fontFamily: "Pacifico", fontSize: 42, margin: 0, lineHeight: 1.2 },
-  heroSub: { fontSize: 18, color: "#456", marginTop: 10 },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 22 },
-  card: { background: "#fff", borderRadius: 24, padding: 22, boxShadow: "0 8px 26px rgba(0,0,0,.08)" },
-  cardImg: { width: "100%", height: 150, borderRadius: 18, objectFit: "cover", marginBottom: 14, display: "block" },
-  cardImgBlank: { display: "flex", alignItems: "center", justifyContent: "center" },
-  builderImg: { width: "100%", maxHeight: 240, objectFit: "cover", borderRadius: 18, margin: "10px 0" },
-  thumb: { width: 70, height: 70, borderRadius: 14, objectFit: "cover", border: "2px solid #eee" },
-  thumbBlank: { display: "flex", alignItems: "center", justifyContent: "center", background: "#f2f2f2", fontSize: 26 },
-  cardTitle: { fontFamily: "Pacifico", fontSize: 24, margin: "0 0 6px" },
-  cardDesc: { color: "#666", fontSize: 14, minHeight: 42 },
-  priceRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14 },
-  price: { fontFamily: "Pacifico", fontSize: 24, color: NEON.green, filter: "brightness(.8)" },
-  cta: { border: "none", borderRadius: 999, padding: "11px 20px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, color: "#fff", background: "linear-gradient(90deg,#ff2e9a,#ff7a00)", boxShadow: "0 6px 16px rgba(255,46,154,.35)", transition: "transform .15s, filter .15s" },
-  builder: { background: "#fff", borderRadius: 28, padding: 28, boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
-  back: { border: "none", background: "transparent", color: "#999", cursor: "pointer", fontSize: 15 },
-  builderTitle: { fontFamily: "Pacifico", fontSize: 30, margin: "6px 0" },
-  label: { fontFamily: "Pacifico", fontSize: 16, margin: "20px 0 8px" },
-  swatchWrap: { display: "flex", flexWrap: "wrap", gap: 14 },
-  swatch: { width: 52, height: 52, borderRadius: "50%", border: "none", cursor: "pointer", color: "#fff", fontSize: 20, fontWeight: 800, transition: "transform .15s" },
-  formRow: { display: "flex", gap: 14, flexWrap: "wrap" },
-  input: { width: "100%", padding: "12px 14px", borderRadius: 14, border: "2px solid #eee", fontSize: 15, fontFamily: "'Comic Neue', cursive", marginTop: 4 },
-  orderBar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 18, borderTop: "2px dashed #eee", flexWrap: "wrap", gap: 12 },
-  cartFab: { position: "fixed", bottom: 24, right: 24, zIndex: 50, border: "none", borderRadius: 999, padding: "14px 22px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 16, color: "#fff", background: "linear-gradient(90deg,#ff2e9a,#b026ff)", boxShadow: "0 8px 24px rgba(176,38,255,.45)" },
-  cartRow: { display: "flex", alignItems: "center", gap: 8, padding: "12px 0", borderBottom: "1px dashed #eee" },
-  ctaBig: { border: "none", borderRadius: 999, padding: "15px 32px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 19, color: "#fff", background: "linear-gradient(90deg,#ff1f8f,#b026ff)", boxShadow: "0 8px 22px rgba(176,38,255,.5)", letterSpacing: "0.3px", border: "2px solid #fff" },
-  stepper: { display: "flex", alignItems: "center", gap: 14, marginTop: 6, background: "#f6f6fb", borderRadius: 999, padding: "6px 10px", width: "fit-content" },
-  stepBtn: { width: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", fontSize: 22, lineHeight: 1, color: "#fff", background: "linear-gradient(135deg,#ff2e9a,#ff7a00)", fontFamily: "Pacifico" },
-  unitBox: { background: "#fafaff", border: "2px dashed #e3d9ff", borderRadius: 16, padding: "14px 16px", marginTop: 14 },
-  terms: { marginTop: 22, background: "#fff7fb", border: "2px dashed #ffb3d9", borderRadius: 16, padding: "14px 18px" },
-  termsList: { margin: "0 0 10px", paddingLeft: 18, color: "#555", fontSize: 14, lineHeight: 1.6 },
-  agreeRow: { display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: "#333", cursor: "pointer" },
-  success: { background: "#fff", borderRadius: 28, padding: 40, textAlign: "center", boxShadow: "0 10px 34px rgba(0,0,0,.1)" },
-  login: { maxWidth: 360, margin: "40px auto", background: "#fff", borderRadius: 24, padding: 30, textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,.1)" },
-  adminTabs: { display: "flex", gap: 10, flexWrap: "wrap" },
-  tab: { border: "none", borderRadius: 999, padding: "10px 18px", cursor: "pointer", fontFamily: "Pacifico", fontSize: 15, background: "#fff", color: "#555", boxShadow: "0 3px 10px rgba(0,0,0,.08)" },
-  tabActive: { background: "linear-gradient(90deg,#00e5ff,#39ff14)", color: "#063" },
-  statRow: { display: "flex", gap: 14, marginBottom: 22, flexWrap: "wrap" },
-  stat: { flex: 1, minWidth: 130, padding: 18, textAlign: "center", borderRadius: 18 },
-  empty: { textAlign: "center", padding: 40, color: "#456", fontFamily: "Pacifico", fontSize: 18 },
-  orderCard: { display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 14, padding: 18, borderRadius: 18, background: "#fff", boxShadow: "0 8px 26px rgba(0,0,0,.08)" },
-  badge: { color: "#063", fontFamily: "Pacifico", fontSize: 12, padding: "3px 10px", borderRadius: 999 },
-  select: { padding: "8px 10px", borderRadius: 10, border: "2px solid #eee", fontFamily: "'Comic Neue', cursive", fontSize: 14 },
-  del: { border: "none", background: "#ffe5ee", color: "#d6005c", borderRadius: 10, padding: "7px 12px", cursor: "pointer", fontSize: 13, fontWeight: 700 },
-  addBox: { padding: 20, borderRadius: 20, marginBottom: 22 },
-  panelTitle: { fontFamily: "Pacifico", fontSize: 20, marginTop: 0 },
-  inlineInput: { padding: "8px 10px", borderRadius: 10, border: "2px solid #eee", fontFamily: "'Comic Neue', cursive", fontSize: 14, width: "100%" },
-  colorPick: { width: 54, height: 44, border: "none", borderRadius: 12, cursor: "pointer", background: "none" },
-  footer: { position: "relative", zIndex: 2, textAlign: "center", padding: "28px 20px 36px", color: "#fff", fontFamily: "Pacifico", background: "rgba(20,16,48,.92)", marginTop: 30, borderTop: "3px solid #ff2e9a" },
-  footTitle: { fontSize: 22, marginBottom: 12, background: "linear-gradient(90deg,#ff2e9a,#fff200,#39ff14)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" },
-  footRow: { display: "flex", gap: 18, justifyContent: "center", flexWrap: "wrap", marginBottom: 14 },
-  footLink: { color: "#fff", textDecoration: "none", fontFamily: "'Comic Neue', cursive", fontSize: 16, background: "rgba(255,255,255,.12)", padding: "8px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,.2)" },
-  footTag: { fontSize: 14, color: "#9fb3d9" },
-  footPrivacy: { fontSize: 12, color: "#7d90b5", fontFamily: "'Comic Neue', cursive", maxWidth: 520, margin: "10px auto 0", lineHeight: 1.5 },
+  root: {
+    minHeight: "100vh",
+    fontFamily: "'Comic Neue', cursive",
+    background: "radial-gradient(circle at 50% 0%, #d6fbff, #b3f0ff 45%, #8fe6ff 100%)",
+    position: "relative",
+    overflow: "hidden",
+    color: "#2b2b3a"
+  },
+  blobs: {
+    position: "fixed",
+    inset: 0,
+    zIndex: 0,
+    pointerEvents: "none"
+  },
+  header: {
+    position: "relative",
+    zIndex: 2,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 28px",
+    background: "rgba(20,16,48,.92)",
+    backdropFilter: "blur(10px)",
+    borderBottom: "3px solid #ff2e9a",
+    boxShadow: "0 4px 20px rgba(0,0,0,.18)"
+  },
+  navBtn: {
+    border: "none",
+    borderRadius: 999,
+    padding: "10px 18px",
+    cursor: "pointer",
+    fontFamily: "Pacifico",
+    fontSize: 15,
+    background: "#fff",
+    color: "#555",
+    boxShadow: "0 3px 10px rgba(0,0,0,.08)",
+    transition: "transform .15s"
+  },
+  navActive: {
+    background: "linear-gradient(90deg,#ff2e9a,#b026ff)",
+    color: "#fff"
+  },
+  main: {
+    position: "relative",
+    zIndex: 2,
+    maxWidth: 980,
+    margin: "0 auto",
+    padding: "28px 20px 60px"
+  },
+  hero: {
+    textAlign: "center",
+    padding: "20px 0 30px"
+  },
+  aboutCard: {
+    maxWidth: 620,
+    margin: "20px auto",
+    background: "#fff",
+    borderRadius: 28,
+    padding: "36px 32px",
+    boxShadow: "0 10px 34px rgba(0,0,0,.1)"
+  },
+  aboutTitle: {
+    fontFamily: "Pacifico",
+    fontSize: 36,
+    textAlign: "center",
+    margin: "10px 0 4px",
+    background: "linear-gradient(90deg,#ff2e9a,#ff7a00,#39ff14)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent"
+  },
+  aboutLead: {
+    fontFamily: "Pacifico",
+    fontSize: 20,
+    textAlign: "center",
+    color: "#00b3a4",
+    margin: "0 0 20px"
+  },
+  aboutText: {
+    fontSize: 17,
+    lineHeight: 1.7,
+    color: "#444",
+    margin: "0 0 16px",
+    textAlign: "center"
+  },
+  aboutSign: {
+    fontFamily: "Pacifico",
+    fontSize: 22,
+    color: "#ff2e9a"
+  },
+  heroTitle: {
+    fontFamily: "Pacifico",
+    fontSize: 42,
+    margin: 0,
+    lineHeight: 1.2
+  },
+  heroSub: {
+    fontSize: 18,
+    color: "#456",
+    marginTop: 10
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+    gap: 22
+  },
+  card: {
+    background: "#fff",
+    borderRadius: 24,
+    padding: 22,
+    boxShadow: "0 8px 26px rgba(0,0,0,.08)"
+  },
+  cardImg: {
+    width: "100%",
+    height: 150,
+    borderRadius: 18,
+    objectFit: "cover",
+    marginBottom: 14,
+    display: "block"
+  },
+  cardImgBlank: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  builderImg: {
+    width: "100%",
+    maxHeight: 240,
+    objectFit: "cover",
+    borderRadius: 18,
+    margin: "10px 0"
+  },
+  thumb: {
+    width: 70,
+    height: 70,
+    borderRadius: 14,
+    objectFit: "cover",
+    border: "2px solid #eee"
+  },
+  thumbBlank: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#f2f2f2",
+    fontSize: 26
+  },
+  cardTitle: {
+    fontFamily: "Pacifico",
+    fontSize: 24,
+    margin: "0 0 6px"
+  },
+  cardDesc: {
+    color: "#666",
+    fontSize: 14,
+    minHeight: 42
+  },
+  priceRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 14
+  },
+  price: {
+    fontFamily: "Pacifico",
+    fontSize: 24,
+    color: NEON.green,
+    filter: "brightness(.8)"
+  },
+  cta: {
+    border: "none",
+    borderRadius: 999,
+    padding: "11px 20px",
+    cursor: "pointer",
+    fontFamily: "Pacifico",
+    fontSize: 15,
+    color: "#fff",
+    background: "linear-gradient(90deg,#ff2e9a,#ff7a00)",
+    boxShadow: "0 6px 16px rgba(255,46,154,.35)",
+    transition: "transform .15s, filter .15s"
+  },
+  builder: {
+    background: "#fff",
+    borderRadius: 28,
+    padding: 28,
+    boxShadow: "0 10px 34px rgba(0,0,0,.1)"
+  },
+  back: {
+    border: "none",
+    background: "transparent",
+    color: "#999",
+    cursor: "pointer",
+    fontSize: 15
+  },
+  builderTitle: {
+    fontFamily: "Pacifico",
+    fontSize: 30,
+    margin: "6px 0"
+  },
+  label: {
+    fontFamily: "Pacifico",
+    fontSize: 16,
+    margin: "20px 0 8px"
+  },
+  swatchWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 14
+  },
+  swatch: {
+    width: 52,
+    height: 52,
+    borderRadius: "50%",
+    border: "none",
+    cursor: "pointer",
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: 800,
+    transition: "transform .15s"
+  },
+  formRow: {
+    display: "flex",
+    gap: 14,
+    flexWrap: "wrap"
+  },
+  input: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 14,
+    border: "2px solid #eee",
+    fontSize: 15,
+    fontFamily: "'Comic Neue', cursive",
+    marginTop: 4
+  },
+  orderBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 24,
+    paddingTop: 18,
+    borderTop: "2px dashed #eee",
+    flexWrap: "wrap",
+    gap: 12
+  },
+  cartFab: {
+    position: "fixed",
+    bottom: 24,
+    right: 24,
+    zIndex: 50,
+    border: "none",
+    borderRadius: 999,
+    padding: "14px 22px",
+    cursor: "pointer",
+    fontFamily: "Pacifico",
+    fontSize: 16,
+    color: "#fff",
+    background: "linear-gradient(90deg,#ff2e9a,#b026ff)",
+    boxShadow: "0 8px 24px rgba(176,38,255,.45)"
+  },
+  cartRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "12px 0",
+    borderBottom: "1px dashed #eee"
+  },
+  ctaBig: {
+    border: "none",
+    borderRadius: 999,
+    padding: "15px 32px",
+    cursor: "pointer",
+    fontFamily: "Pacifico",
+    fontSize: 19,
+    color: "#fff",
+    background: "linear-gradient(90deg,#ff1f8f,#b026ff)",
+    boxShadow: "0 8px 22px rgba(176,38,255,.5)",
+    letterSpacing: "0.3px",
+    border: "2px solid #fff"
+  },
+  stepper: {
+    display: "flex",
+    alignItems: "center",
+    gap: 14,
+    marginTop: 6,
+    background: "#f6f6fb",
+    borderRadius: 999,
+    padding: "6px 10px",
+    width: "fit-content"
+  },
+  stepBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: "50%",
+    border: "none",
+    cursor: "pointer",
+    fontSize: 22,
+    lineHeight: 1,
+    color: "#fff",
+    background: "linear-gradient(135deg,#ff2e9a,#ff7a00)",
+    fontFamily: "Pacifico"
+  },
+  unitBox: {
+    background: "#fafaff",
+    border: "2px dashed #e3d9ff",
+    borderRadius: 16,
+    padding: "14px 16px",
+    marginTop: 14
+  },
+  terms: {
+    marginTop: 22,
+    background: "#fff7fb",
+    border: "2px dashed #ffb3d9",
+    borderRadius: 16,
+    padding: "14px 18px"
+  },
+  termsList: {
+    margin: "0 0 10px",
+    paddingLeft: 18,
+    color: "#555",
+    fontSize: 14,
+    lineHeight: 1.6
+  },
+  agreeRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    fontSize: 14,
+    color: "#333",
+    cursor: "pointer"
+  },
+  success: {
+    background: "#fff",
+    borderRadius: 28,
+    padding: 40,
+    textAlign: "center",
+    boxShadow: "0 10px 34px rgba(0,0,0,.1)"
+  },
+  login: {
+    maxWidth: 360,
+    margin: "40px auto",
+    background: "#fff",
+    borderRadius: 24,
+    padding: 30,
+    textAlign: "center",
+    boxShadow: "0 10px 30px rgba(0,0,0,.1)"
+  },
+  adminTabs: {
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap"
+  },
+  tab: {
+    border: "none",
+    borderRadius: 999,
+    padding: "10px 18px",
+    cursor: "pointer",
+    fontFamily: "Pacifico",
+    fontSize: 15,
+    background: "#fff",
+    color: "#555",
+    boxShadow: "0 3px 10px rgba(0,0,0,.08)"
+  },
+  tabActive: {
+    background: "linear-gradient(90deg,#00e5ff,#39ff14)",
+    color: "#063"
+  },
+  statRow: {
+    display: "flex",
+    gap: 14,
+    marginBottom: 22,
+    flexWrap: "wrap"
+  },
+  stat: {
+    flex: 1,
+    minWidth: 130,
+    padding: 18,
+    textAlign: "center",
+    borderRadius: 18
+  },
+  empty: {
+    textAlign: "center",
+    padding: 40,
+    color: "#456",
+    fontFamily: "Pacifico",
+    fontSize: 18
+  },
+  orderCard: {
+    display: "flex",
+    gap: 16,
+    alignItems: "flex-start",
+    marginBottom: 14,
+    padding: 18,
+    borderRadius: 18,
+    background: "#fff",
+    boxShadow: "0 8px 26px rgba(0,0,0,.08)"
+  },
+  badge: {
+    color: "#063",
+    fontFamily: "Pacifico",
+    fontSize: 12,
+    padding: "3px 10px",
+    borderRadius: 999
+  },
+  select: {
+    padding: "8px 10px",
+    borderRadius: 10,
+    border: "2px solid #eee",
+    fontFamily: "'Comic Neue', cursive",
+    fontSize: 14
+  },
+  del: {
+    border: "none",
+    background: "#ffe5ee",
+    color: "#d6005c",
+    borderRadius: 10,
+    padding: "7px 12px",
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 700
+  },
+  addBox: {
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 22
+  },
+  panelTitle: {
+    fontFamily: "Pacifico",
+    fontSize: 20,
+    marginTop: 0
+  },
+  inlineInput: {
+    padding: "8px 10px",
+    borderRadius: 10,
+    border: "2px solid #eee",
+    fontFamily: "'Comic Neue', cursive",
+    fontSize: 14,
+    width: "100%"
+  },
+  colorPick: {
+    width: 54,
+    height: 44,
+    border: "none",
+    borderRadius: 12,
+    cursor: "pointer",
+    background: "none"
+  },
+  footer: {
+    position: "relative",
+    zIndex: 2,
+    textAlign: "center",
+    padding: "28px 20px 36px",
+    color: "#fff",
+    fontFamily: "Pacifico",
+    background: "rgba(20,16,48,.92)",
+    marginTop: 30,
+    borderTop: "3px solid #ff2e9a"
+  },
+  footTitle: {
+    fontSize: 22,
+    marginBottom: 12,
+    background: "linear-gradient(90deg,#ff2e9a,#fff200,#39ff14)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent"
+  },
+  footRow: {
+    display: "flex",
+    gap: 18,
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginBottom: 14
+  },
+  footLink: {
+    color: "#fff",
+    textDecoration: "none",
+    fontFamily: "'Comic Neue', cursive",
+    fontSize: 16,
+    background: "rgba(255,255,255,.12)",
+    padding: "8px 16px",
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,.2)"
+  },
+  footTag: {
+    fontSize: 14,
+    color: "#9fb3d9"
+  },
+  footPrivacy: {
+    fontSize: 12,
+    color: "#7d90b5",
+    fontFamily: "'Comic Neue', cursive",
+    maxWidth: 520,
+    margin: "10px auto 0",
+    lineHeight: 1.5
+  }
 };
-
 function boot() {
   try {
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
   } catch (e) {
-    document.getElementById("root").innerHTML =
-      "<div style='font-family:sans-serif;text-align:center;padding:60px 20px;color:#444'><div style='font-size:40px'>🌈</div><h2>Something went wrong loading the shop</h2><p>Please refresh the page.</p></div>";
+    document.getElementById("root").innerHTML = "<div style='font-family:sans-serif;text-align:center;padding:60px 20px;color:#444'><div style='font-size:40px'>🌈</div><h2>Something went wrong loading the shop</h2><p>Please refresh the page.</p></div>";
   }
 }
 // Wait until Firebase is ready, however the timing works out:
 // poll for window.fb so we never miss the event due to script load order.
 (function waitForFirebase() {
-  if (window.fb) { boot(); return; }
+  if (window.fb) {
+    boot();
+    return;
+  }
   let tries = 0;
   const t = setInterval(() => {
     tries++;
-    if (window.fb) { clearInterval(t); boot(); }
-    else if (tries > 100) { clearInterval(t); boot(); } // ~10s fallback: render anyway
+    if (window.fb) {
+      clearInterval(t);
+      boot();
+    } else if (tries > 100) {
+      clearInterval(t);
+      boot();
+    } // ~10s fallback: render anyway
   }, 100);
-  window.addEventListener("fb-ready", () => { clearInterval(t); boot(); });
+  window.addEventListener("fb-ready", () => {
+    clearInterval(t);
+    boot();
+  });
 })();
 </script>
 </body>
