@@ -145,6 +145,7 @@ function App() {
         <nav style={{ display: "flex", gap: 10 }}>
           <button onClick={() => setView("about")} className="navbtn" style={{ ...styles.navBtn, ...(view === "about" ? styles.navActive : {}) }}>💖 About</button>
           <button onClick={() => setView("shop")} className="navbtn" style={{ ...styles.navBtn, ...(view === "shop" ? styles.navActive : {}) }}>🛍️ Shop</button>
+          <button onClick={() => setView("testimonials")} className="navbtn" style={{ ...styles.navBtn, ...(view === "testimonials" ? styles.navActive : {}) }}>⭐ Testimonials</button>
           <button onClick={() => setView("admin")} className="navbtn" style={{ ...styles.navBtn, ...(view === "admin" ? styles.navActive : {}) }}>🔒 Owner</button>
         </nav>
       </header>
@@ -155,7 +156,9 @@ function App() {
           ? <Shop products={products} colors={colors} />
           : view === "about"
             ? <About />
-            : <Admin products={products} colors={colors} />}
+            : view === "testimonials"
+              ? <Testimonials />
+              : <Admin products={products} colors={colors} />}
 
       <footer style={styles.footer}>
         <div style={styles.footTitle}>📞 Get in touch</div>
@@ -170,6 +173,23 @@ function App() {
         </div>
       </footer>
     </div>
+  );
+}
+
+/* ===================== TESTIMONIALS ===================== */
+function Testimonials() {
+  return (
+    <main style={styles.main}>
+      <div className="pop" style={styles.aboutCard}>
+        <div style={{ fontSize: 60, textAlign: "center" }}>⭐</div>
+        <h1 style={styles.aboutTitle}>Testimonials</h1>
+        <p style={styles.aboutLead}>Coming soon! 💫</p>
+        <p style={styles.aboutText}>
+          Happy customers will be sharing their Loop Lab love here very soon.
+          Check back to see what everyone is saying! 🌈
+        </p>
+      </div>
+    </main>
   );
 }
 
