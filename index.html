@@ -67,7 +67,24 @@ window.fb = {
   query, orderBy, serverTimestamp,
   signInWithEmailAndPassword, signOut, onAuthStateChanged,
 };
+window.fbReady = true;
 window.dispatchEvent(new Event("fb-ready"));
+</script>
+
+<script type="module">
+// If the Firebase module above fails to load (network/CDN blocked), show a message instead of a blank page.
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    if (!window.fbReady) {
+      var r = document.getElementById("root");
+      if (r && !r.hasChildNodes()) {
+        r.innerHTML = "<div style='font-family:sans-serif;text-align:center;padding:60px 20px;color:#444'>"
+          + "<div style='font-size:40px'>🌈</div><h2>Loop Lab is having trouble loading</h2>"
+          + "<p>Please check your internet connection and refresh the page.</p></div>";
+      }
+    }
+  }, 8000);
+});
 </script>
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -831,9 +848,25 @@ const styles = {
 };
 
 function boot() {
-  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  try {
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  } catch (e) {
+    document.getElementById("root").innerHTML =
+      "<div style='font-family:sans-serif;text-align:center;padding:60px 20px;color:#444'><div style='font-size:40px'>🌈</div><h2>Something went wrong loading the shop</h2><p>Please refresh the page.</p></div>";
+  }
 }
-if (window.fb) boot(); else window.addEventListener("fb-ready", boot);
+// Wait until Firebase is ready, however the timing works out:
+// poll for window.fb so we never miss the event due to script load order.
+(function waitForFirebase() {
+  if (window.fb) { boot(); return; }
+  let tries = 0;
+  const t = setInterval(() => {
+    tries++;
+    if (window.fb) { clearInterval(t); boot(); }
+    else if (tries > 100) { clearInterval(t); boot(); } // ~10s fallback: render anyway
+  }, 100);
+  window.addEventListener("fb-ready", () => { clearInterval(t); boot(); });
+})();
 </script>
 </body>
 </html>
