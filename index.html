@@ -28,6 +28,28 @@ body { margin: 0; }
 input:focus, textarea:focus, select:focus { outline: 3px solid #ff2e9a44; border-color:#ff2e9a !important; }
 .spin { animation: spin 1s linear infinite; display:inline-block; }
 @keyframes spin { to { transform: rotate(360deg);} }
+
+/* ---------- Responsive (mobile / small screens) ---------- */
+@media (max-width: 640px) {
+  /* header: stack logo above the nav, both centered, nav wraps */
+  .site-header {
+    flex-direction: column !important;
+    gap: 12px;
+    padding: 14px 12px !important;
+  }
+  .site-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+  .site-nav .navbtn {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+  }
+}
+@media (max-width: 380px) {
+  .site-nav .navbtn { padding: 7px 11px !important; font-size: 12px !important; }
+}
 </style>
 </head>
 <body>
@@ -258,6 +280,7 @@ function App() {
   }), /*#__PURE__*/React.createElement("span", {
     className: "blob b4"
   })), /*#__PURE__*/React.createElement("header", {
+    className: "site-header",
     style: styles.header
   }, /*#__PURE__*/React.createElement("div", {
     onClick: () => setView("shop"),
@@ -266,6 +289,7 @@ function App() {
     },
     title: "Back to home"
   }, /*#__PURE__*/React.createElement(Logo, null)), /*#__PURE__*/React.createElement("nav", {
+    className: "site-nav",
     style: {
       display: "flex",
       gap: 10
